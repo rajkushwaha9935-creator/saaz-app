@@ -17,7 +17,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
 .field{margin-bottom:14px}
 .field label{font-size:11px;color:#94a3b8;display:block;margin-bottom:4px}
 .field input,.field select,.field textarea{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px;font-family:inherit}
-.field textarea{resize:vertical;min-height:80px}
+.field textarea{resize:vertical;min-height:70px}
 .btn-primary{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:4px}
 .btn-success{background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}
 .btn-danger{background:#dc2626;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
@@ -40,7 +40,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
 .card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .stat-card{background:#1e293b;border-radius:12px;padding:14px}
-.stat-icon{font-size:20px;margin-bottom:4px}
+.stat-icon{font-size:13px;color:#94a3b8;margin-bottom:4px}
 .stat-val{font-size:26px;font-weight:800}
 .stat-label{font-size:10px;color:#94a3b8;margin-top:2px}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
@@ -53,28 +53,35 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
 .badge-warranty-ok{background:#14532d;color:#86efac}
 .badge-warranty-soon{background:#78350f;color:#fcd34d}
 .badge-warranty-expired{background:#7f1d1d;color:#fca5a5}
+.badge-paid{background:#14532d;color:#86efac}
+.badge-pending{background:#78350f;color:#fcd34d}
+.badge-overdue{background:#7f1d1d;color:#fca5a5}
+.badge-today{background:#1e3a5f;color:#93c5fd}
 .complaint-card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid #334155;cursor:pointer}
 .complaint-card.open{border-left-color:#ef4444}
 .complaint-card.inprogress{border-left-color:#f59e0b}
 .complaint-card.resolved{border-left-color:#22c55e}
+.payment-card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid #334155;cursor:pointer}
+.payment-card.today{border-left-color:#f59e0b;background:#1c1a0f}
+.payment-card.overdue{border-left-color:#ef4444;background:#1c0f0f}
+.payment-card.paid{border-left-color:#22c55e}
+.machine-card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid #334155;cursor:pointer}
+.machine-card.warranty-ok{border-left-color:#22c55e}
+.machine-card.warranty-soon{border-left-color:#f59e0b}
+.machine-card.warranty-expired{border-left-color:#ef4444}
+.reminder-alert{background:#1c1a0f;border:1px solid #f59e0b;border-radius:12px;padding:14px;margin-bottom:14px;cursor:pointer}
 .att-card{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:14px;text-align:center}
 .att-time{font-size:36px;font-weight:800;color:#60a5fa;margin:8px 0}
 .att-label{font-size:12px;color:#94a3b8}
 .att-btns{display:flex;gap:10px;justify-content:center;margin-top:14px}
 .emp-card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.machine-card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid #334155;cursor:pointer}
-.machine-card.warranty-ok{border-left-color:#22c55e}
-.machine-card.warranty-soon{border-left-color:#f59e0b}
-.machine-card.warranty-expired{border-left-color:#ef4444}
 .toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#fff;padding:10px 20px;border-radius:30px;z-index:9999;font-weight:700;font-size:13px;display:none;white-space:nowrap;max-width:90vw;text-align:center}
-.modal-overlay{position:fixed;inset:0;background:#000a;z-index:500;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.active{display:flex}
 .modal{background:#1e293b;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
 .modal-title{font-size:16px;font-weight:800;margin-bottom:16px}
 .modal-close{float:right;background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;margin-top:-4px}
 .loading{text-align:center;padding:40px;color:#64748b}
-.spinner{font-size:32px;animation:spin 1s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
 .divider{height:1px;background:#334155;margin:12px 0}
 .text-muted{color:#64748b;font-size:12px}
 .text-danger{color:#f87171}
@@ -85,49 +92,46 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
 .search-inp{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #334155;background:#1e293b;color:#f1f5f9;font-size:14px;margin-bottom:12px}
 .empty{text-align:center;padding:40px;color:#64748b;font-size:13px}
 .warranty-bar{height:6px;border-radius:3px;background:#334155;margin-top:8px;overflow:hidden}
-.warranty-fill{height:100%;border-radius:3px;transition:width 0.3s}
+.warranty-fill{height:100%;border-radius:3px}
 </style>
 </head>
 <body>
-
 <div id="loginPage">
   <div class="login-logo">🏭</div>
   <div class="login-brand">SAAZ Electronic</div>
   <div class="login-title">Management System</div>
   <div class="login-card">
-    <h3>🔐 Login Karo</h3>
+    <h3>Login Karo</h3>
     <div class="field"><label>Phone Number</label><input type="tel" id="loginPhone" placeholder="9999999999"></div>
     <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="Password"></div>
-    <button class="btn-primary" onclick="doLogin()">Login →</button>
+    <button class="btn-primary" onclick="doLogin()">Login</button>
     <div id="loginError" class="text-danger mt-8" style="font-size:13px;text-align:center"></div>
   </div>
 </div>
-
 <div id="mainApp" class="hidden">
   <div class="header">
     <div class="header-top">
       <div>
-        <div class="header-info">SAAZ Electronic • Varanasi</div>
-        <div class="header-name" id="headerName">—</div>
-        <div class="header-role" id="headerRole">—</div>
+        <div class="header-info">SAAZ Electronic Varanasi</div>
+        <div class="header-name" id="headerName">---</div>
+        <div class="header-role" id="headerRole">---</div>
       </div>
       <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
     <div class="nav" id="navBar"></div>
   </div>
-
   <div class="page" id="page-dashboard">
-    <div class="page-title">📊 Dashboard</div>
+    <div class="page-title">Dashboard</div>
+    <div id="todayReminderAlert"></div>
     <div class="stats-grid" id="dashStats"></div>
-    <div class="page-title" style="font-size:14px">⚠️ Warranty Expire Hone Wali</div>
+    <div class="page-title" style="font-size:14px">Warranty Expiring Soon</div>
     <div id="dashWarranty"></div>
-    <div class="page-title" style="font-size:14px;margin-top:8px">🔴 Open Complaints</div>
+    <div class="page-title" style="font-size:14px;margin-top:8px">Open Complaints</div>
     <div id="dashComplaints"></div>
   </div>
-
   <div class="page" id="page-complaints">
     <div class="flex-between" style="margin-bottom:14px">
-      <div class="page-title" style="margin:0">📋 Complaints</div>
+      <div class="page-title" style="margin:0">Complaints</div>
       <button class="btn-success btn-sm" onclick="openModal('addComplaint')" id="addComplaintBtn">+ Add</button>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
@@ -138,799 +142,616 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
     </div>
     <div id="complaintsList"></div>
   </div>
-
+  <div class="page" id="page-payments">
+    <div class="flex-between" style="margin-bottom:14px">
+      <div class="page-title" style="margin:0">Payment Reminders</div>
+      <button class="btn-success btn-sm" onclick="openModal('addPayment')">+ Add</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
+      <button class="btn-outline btn-sm" onclick="filterPayments('all')" id="pf-all" style="background:#334155;color:#fff">All</button>
+      <button class="btn-outline btn-sm" onclick="filterPayments('today')" id="pf-today">Aaj</button>
+      <button class="btn-outline btn-sm" onclick="filterPayments('overdue')" id="pf-overdue">Overdue</button>
+      <button class="btn-outline btn-sm" onclick="filterPayments('pending')" id="pf-pending">Pending</button>
+      <button class="btn-outline btn-sm" onclick="filterPayments('paid')" id="pf-paid">Paid</button>
+    </div>
+    <div id="paymentsList"></div>
+  </div>
   <div class="page" id="page-machines">
     <div class="flex-between" style="margin-bottom:14px">
-      <div class="page-title" style="margin:0">🔧 Machines</div>
+      <div class="page-title" style="margin:0">Machines</div>
       <button class="btn-success btn-sm" onclick="openModal('addMachine')">+ Add</button>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
       <button class="btn-outline btn-sm" onclick="filterMachines('all')" id="mf-all" style="background:#334155;color:#fff">All</button>
-      <button class="btn-outline btn-sm" onclick="filterMachines('ok')" id="mf-ok">✅ Valid</button>
-      <button class="btn-outline btn-sm" onclick="filterMachines('soon')" id="mf-soon">⚠️ Expiring</button>
-      <button class="btn-outline btn-sm" onclick="filterMachines('expired')" id="mf-expired">❌ Expired</button>
+      <button class="btn-outline btn-sm" onclick="filterMachines('ok')" id="mf-ok">Valid</button>
+      <button class="btn-outline btn-sm" onclick="filterMachines('soon')" id="mf-soon">Expiring</button>
+      <button class="btn-outline btn-sm" onclick="filterMachines('expired')" id="mf-expired">Expired</button>
     </div>
-    <input class="search-inp" placeholder="🔍 Customer naam, serial number..." oninput="searchMachines(this.value)">
+    <input class="search-inp" placeholder="Search naam, serial number..." oninput="searchMachines(this.value)">
     <div id="machinesList"></div>
   </div>
-
   <div class="page" id="page-attendance">
-    <div class="page-title">⏰ Attendance</div>
+    <div class="page-title">Attendance</div>
     <div class="att-card">
-      <div class="att-label">Aaj ki Date — <span id="attDate"></span></div>
-      <div class="att-time" id="attClock">--:--:--</div>
+      <div class="att-label">Aaj - <span id="attDate"></span></div>
+      <div class="att-time" id="attClock">00:00:00</div>
       <div id="attStatus" class="text-muted">Loading...</div>
       <div class="att-btns">
-        <button class="btn-success" id="btnCheckIn" onclick="doCheckIn()">✅ Check In</button>
-        <button class="btn-danger" id="btnCheckOut" onclick="doCheckOut()" style="display:none">🚪 Check Out</button>
+        <button class="btn-success" id="btnCheckIn" onclick="doCheckIn()">Check In</button>
+        <button class="btn-danger" id="btnCheckOut" onclick="doCheckOut()" style="display:none">Check Out</button>
       </div>
     </div>
-    <div class="page-title" style="font-size:14px">📅 History</div>
+    <div class="page-title" style="font-size:14px">History</div>
     <div id="attHistory"></div>
   </div>
-
   <div class="page" id="page-employees">
     <div class="flex-between" style="margin-bottom:14px">
-      <div class="page-title" style="margin:0">👷 Employees</div>
+      <div class="page-title" style="margin:0">Employees</div>
       <button class="btn-success btn-sm" onclick="openModal('addEmployee')">+ Add</button>
     </div>
-    <input class="search-inp" placeholder="🔍 Search..." oninput="searchEmployees(this.value)">
+    <input class="search-inp" placeholder="Search..." oninput="searchEmployees(this.value)">
     <div id="employeesList"></div>
   </div>
-
   <div class="page" id="page-customers">
     <div class="flex-between" style="margin-bottom:14px">
-      <div class="page-title" style="margin:0">👥 Customers</div>
+      <div class="page-title" style="margin:0">Customers</div>
       <button class="btn-success btn-sm" onclick="openModal('addCustomer')">+ Add</button>
     </div>
-    <input class="search-inp" placeholder="🔍 Search..." oninput="searchCustomers(this.value)">
+    <input class="search-inp" placeholder="Search naam, phone..." oninput="searchCustomers(this.value)">
     <div id="customersList"></div>
   </div>
-
   <div class="page" id="page-location">
-    <div class="page-title">📍 Location</div>
+    <div class="page-title">Location</div>
     <div class="card">
       <div style="font-weight:700;margin-bottom:10px">Apni location share karo</div>
-      <div id="locationStatus" class="text-muted" style="margin-bottom:12px;font-size:13px">—</div>
-      <button class="btn-primary" onclick="shareLocation()">📍 Location Share Karo</button>
+      <div id="locationStatus" class="text-muted" style="margin-bottom:12px;font-size:13px">--</div>
+      <button class="btn-primary" onclick="shareLocation()">Location Share Karo</button>
     </div>
   </div>
 </div>
-
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" id="modalContent"></div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzmZ6xyh8oh_AIyta9OaTPASWCDc5XGjcaQqTqVMNmvnJ2WB2MTixkm-PSKTZ7IDMkrSQ/exec';
-let currentUser = null;
-let allComplaints = [], allEmployees = [], allCustomers = [], allMachines = [], allMachineTypes = [];
-let currentFilter = 'all', currentMachineFilter = 'all';
-let clockInterval = null;
+var API='https://script.google.com/macros/s/AKfycbzmZ6xyh8oh_AIyta9OaTPASWCDc5XGjcaQqTqVMNmvnJ2WB2MTixkm-PSKTZ7IDMkrSQ/exec';
+var currentUser=null;
+var allComplaints=[],allEmployees=[],allCustomers=[],allMachines=[],allMachineTypes=[],allPayments=[];
+var currentFilter='all',currentMachineFilter='all',currentPaymentFilter='all';
+var clockInterval=null;
 
-async function api(params) {
-  const url = API + '?' + new URLSearchParams(params);
-  try { const r = await fetch(url); return await r.json(); }
-  catch(e) { return { success: false, error: 'Network error' }; }
+async function api(params){
+  var url=API+'?'+new URLSearchParams(params);
+  try{var r=await fetch(url);return await r.json();}catch(e){return{success:false,error:'Network error'};}
 }
 
-function toast(msg, color='#22c55e') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.background = color; t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
+function toast(msg,color){
+  color=color||'#22c55e';
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=color;t.style.display='block';
+  setTimeout(function(){t.style.display='none';},3000);
 }
 
-function warrantyStatus(expiry) {
-  if (!expiry) return 'expired';
-  const days = Math.floor((new Date(expiry) - new Date()) / 86400000);
-  if (days < 0) return 'expired';
-  if (days <= 30) return 'soon';
-  return 'ok';
+function fmt(d){if(!d)return '--';return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function today(){return new Date().toISOString().split('T')[0];}
+function daysFromToday(d){if(!d)return 999;return Math.floor((new Date(d)-new Date())/86400000);}
+
+function warrantyStatus(expiry){
+  if(!expiry)return 'expired';
+  var days=daysFromToday(expiry);
+  if(days<0)return 'expired';if(days<=30)return 'soon';return 'ok';
 }
 
-function warrantyLabel(expiry) {
-  if (!expiry) return '❌ Expired';
-  const days = Math.floor((new Date(expiry) - new Date()) / 86400000);
-  if (days < 0) return `❌ Expired (${Math.abs(days)}d ago)`;
-  if (days <= 30) return `⚠️ ${days} din mein expire`;
-  return `✅ ${days} din baki`;
+function warrantyLabel(expiry){
+  if(!expiry)return 'Expired';
+  var days=daysFromToday(expiry);
+  if(days<0)return 'Expired ('+Math.abs(days)+'d ago)';
+  if(days<=30)return days+' din mein expire';
+  return days+' din baki';
 }
 
-function warrantyPercent(install, expiry) {
-  if (!install || !expiry) return 0;
-  const total = new Date(expiry) - new Date(install);
-  const elapsed = new Date() - new Date(install);
-  return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+function getPaymentStatus(p){
+  if(p.status==='paid')return 'paid';
+  var rd=p.reminderDate?daysFromToday(p.reminderDate):999;
+  var pd=p.promiseDate?daysFromToday(p.promiseDate):999;
+  var minDays=Math.min(rd,pd);
+  if(minDays<0)return 'overdue';if(minDays===0)return 'today';return 'pending';
 }
 
-function fmt(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+function dLabel(d){if(d===null)return '';if(d<0)return Math.abs(d)+'d overdue';if(d===0)return 'Aaj';return d+'d baad';}
+
+async function doLogin(){
+  var phone=document.getElementById('loginPhone').value.trim();
+  var pass=document.getElementById('loginPass').value.trim();
+  if(!phone||!pass){document.getElementById('loginError').textContent='Phone aur password daalo';return;}
+  document.getElementById('loginError').textContent='Login ho raha hai...';
+  var res=await api({action:'login',phone:phone,password:pass});
+  if(res.success){currentUser=res.user;localStorage.setItem('saaz_user',JSON.stringify(currentUser));startApp();}
+  else{document.getElementById('loginError').textContent=res.error||'Login failed';}
 }
 
-function today() { return new Date().toISOString().split('T')[0]; }
-
-// ── LOGIN ──
-async function doLogin() {
-  const phone = document.getElementById('loginPhone').value.trim();
-  const pass = document.getElementById('loginPass').value.trim();
-  if (!phone || !pass) { document.getElementById('loginError').textContent = 'Phone aur password daalo'; return; }
-  document.getElementById('loginError').textContent = 'Login ho raha hai...';
-  const res = await api({ action: 'login', phone, password: pass });
-  if (res.success) {
-    currentUser = res.user;
-    localStorage.setItem('saaz_user', JSON.stringify(currentUser));
-    startApp();
-  } else {
-    document.getElementById('loginError').textContent = res.error || 'Login failed';
-  }
-}
-
-function logout() {
-  if (!confirm('Logout karna hai?')) return;
-  currentUser = null;
-  localStorage.removeItem('saaz_user');
-  clearInterval(clockInterval);
+function logout(){
+  if(!confirm('Logout karna hai?'))return;
+  currentUser=null;localStorage.removeItem('saaz_user');clearInterval(clockInterval);
   document.getElementById('loginPage').classList.remove('hidden');
   document.getElementById('mainApp').classList.add('hidden');
-  document.getElementById('loginPhone').value = '';
-  document.getElementById('loginPass').value = '';
-  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginPhone').value='';document.getElementById('loginPass').value='';
+  document.getElementById('loginError').textContent='';
 }
 
-function startApp() {
+function startApp(){
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('mainApp').classList.remove('hidden');
-  document.getElementById('headerName').textContent = currentUser.name;
-  document.getElementById('headerRole').textContent = currentUser.role === 'admin' ? '👑 Admin' : currentUser.role === 'manager' ? '👔 Manager' : '👷 Engineer';
-  buildNav();
-  const defaultPage = currentUser.role === 'engineer' ? 'attendance' : 'dashboard';
-  showPage(defaultPage);
-  startClock();
+  document.getElementById('headerName').textContent=currentUser.name;
+  document.getElementById('headerRole').textContent=currentUser.role==='admin'?'Admin':currentUser.role==='manager'?'Manager':'Engineer';
+  buildNav();showPage(currentUser.role==='engineer'?'attendance':'dashboard');startClock();
 }
 
-function buildNav() {
-  const role = currentUser.role;
-  let tabs = role === 'engineer'
-    ? [{id:'attendance',label:'⏰ Attendance'},{id:'complaints',label:'📋 Complaints'},{id:'location',label:'📍 Location'}]
-    : [{id:'dashboard',label:'📊 Home'},{id:'complaints',label:'📋 Complaints'},{id:'machines',label:'🔧 Machines'},{id:'customers',label:'👥 Customers'},{id:'employees',label:'👷 Team'}];
-  document.getElementById('navBar').innerHTML = tabs.map(t =>
-    `<button class="nav-btn" id="nav-${t.id}" onclick="showPage('${t.id}')">${t.label}</button>`
-  ).join('');
+function buildNav(){
+  var role=currentUser.role;
+  var tabs=role==='engineer'
+    ?[{id:'attendance',label:'Attendance'},{id:'complaints',label:'Complaints'},{id:'location',label:'Location'}]
+    :[{id:'dashboard',label:'Home'},{id:'complaints',label:'Complaints'},{id:'payments',label:'Payments'},{id:'machines',label:'Machines'},{id:'customers',label:'Customers'},{id:'employees',label:'Team'}];
+  document.getElementById('navBar').innerHTML=tabs.map(function(t){return '<button class="nav-btn" id="nav-'+t.id+'" onclick="showPage(\''+t.id+'\')">'+t.label+'</button>';}).join('');
 }
 
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const page = document.getElementById('page-' + id);
-  const nav = document.getElementById('nav-' + id);
-  if (page) page.classList.add('active');
-  if (nav) nav.classList.add('active');
-  loadPage(id);
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  var page=document.getElementById('page-'+id);var nav=document.getElementById('nav-'+id);
+  if(page)page.classList.add('active');if(nav)nav.classList.add('active');loadPage(id);
 }
 
-async function loadPage(id) {
-  if (id === 'dashboard') loadDashboard();
-  else if (id === 'complaints') { await ensureData(); loadComplaints(); }
-  else if (id === 'machines') loadMachines();
-  else if (id === 'attendance') loadAttendance();
-  else if (id === 'employees') loadEmployees();
-  else if (id === 'customers') loadCustomers();
+async function loadPage(id){
+  if(id==='dashboard')loadDashboard();
+  else if(id==='complaints'){await ensureData();loadComplaints();}
+  else if(id==='payments'){await ensureData();loadPayments();}
+  else if(id==='machines')loadMachines();
+  else if(id==='attendance')loadAttendance();
+  else if(id==='employees')loadEmployees();
+  else if(id==='customers')loadCustomers();
 }
 
-async function ensureData() {
-  if (allEmployees.length === 0) {
-    const res = await api({ action: 'getEmployees' });
-    allEmployees = res.success ? res.data : [];
-  }
-  if (allCustomers.length === 0) {
-    const res = await api({ action: 'getCustomers' });
-    allCustomers = res.success ? res.data : [];
-  }
+async function ensureData(){
+  if(!allEmployees.length){var r=await api({action:'getEmployees'});allEmployees=r.success?r.data:[];}
+  if(!allCustomers.length){var r2=await api({action:'getCustomers'});allCustomers=r2.success?r2.data:[];}
 }
 
-function startClock() {
+function startClock(){
   clearInterval(clockInterval);
-  const dateEl = document.getElementById('attDate');
-  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short' });
-  clockInterval = setInterval(() => {
-    const el = document.getElementById('attClock');
-    if (el) el.textContent = new Date().toLocaleTimeString('en-IN');
-  }, 1000);
+  var de=document.getElementById('attDate');
+  if(de)de.textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'});
+  clockInterval=setInterval(function(){var el=document.getElementById('attClock');if(el)el.textContent=new Date().toLocaleTimeString('en-IN');},1000);
 }
 
-// ── DASHBOARD ──
-async function loadDashboard() {
-  document.getElementById('dashStats').innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
-  const [cr, er, mr] = await Promise.all([
-    api({ action: 'getComplaints' }),
-    api({ action: 'getEmployees' }),
-    api({ action: 'getMachines' })
-  ]);
-  allComplaints = cr.success ? cr.data : [];
-  allEmployees = er.success ? er.data : [];
-  allMachines = mr.success ? mr.data : [];
-
-  const open = allComplaints.filter(c => c.status === 'open').length;
-  const inprog = allComplaints.filter(c => c.status === 'inprogress').length;
-  const resolved = allComplaints.filter(c => c.status === 'resolved').length;
-  const expiringSoon = allMachines.filter(m => warrantyStatus(m.warrantyExpiry) === 'soon').length;
-
-  document.getElementById('dashStats').innerHTML = `
-    <div class="stat-card" style="border-left:3px solid #ef4444"><div class="stat-icon">🔴</div><div class="stat-val" style="color:#ef4444">${open}</div><div class="stat-label">Open Complaints</div></div>
-    <div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-icon">🟡</div><div class="stat-val" style="color:#f59e0b">${inprog}</div><div class="stat-label">In Progress</div></div>
-    <div class="stat-card" style="border-left:3px solid #22c55e"><div class="stat-icon">✅</div><div class="stat-val" style="color:#22c55e">${resolved}</div><div class="stat-label">Resolved</div></div>
-    <div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-icon">⚠️</div><div class="stat-val" style="color:#f59e0b">${expiringSoon}</div><div class="stat-label">Warranty Expiring</div></div>
-  `;
-
-  // Warranty expiring soon
-  const warnMachines = allMachines.filter(m => warrantyStatus(m.warrantyExpiry) === 'soon').slice(0, 4);
-  document.getElementById('dashWarranty').innerHTML = warnMachines.length === 0
-    ? '<div class="empty" style="padding:16px">Koi warranty expire nahi hone wali 🎉</div>'
-    : warnMachines.map(m => machineCardHTML(m)).join('');
-
-  const openList = allComplaints.filter(c => c.status === 'open').slice(0, 5);
-  document.getElementById('dashComplaints').innerHTML = openList.length === 0
-    ? '<div class="empty">Koi open complaint nahi 🎉</div>'
-    : openList.map(c => complaintCardHTML(c)).join('');
+async function loadDashboard(){
+  document.getElementById('dashStats').innerHTML='<div class="loading">Loading...</div>';
+  var cr=await api({action:'getComplaints'});
+  var er=await api({action:'getEmployees'});
+  var mr=await api({action:'getMachines'});
+  var pr=await api({action:'getTodayReminders'});
+  allComplaints=cr.success?cr.data:[];allEmployees=er.success?er.data:[];allMachines=mr.success?mr.data:[];
+  var todayR=pr.success?pr.data:[];
+  var alertEl=document.getElementById('todayReminderAlert');
+  if(todayR.length>0){
+    var rHTML='<div class="reminder-alert" onclick="showPage(\'payments\')"><div style="font-weight:800;font-size:15px;color:#fbbf24">'+todayR.length+' Payment Reminder Aaj!</div>';
+    todayR.forEach(function(p){rHTML+='<div style="font-size:13px;margin-top:6px;color:#fcd34d">'+p.customerName+' - Rs.'+parseFloat(p.pendingAmount||0).toLocaleString()+' pending</div>';});
+    rHTML+='<div style="font-size:11px;color:#94a3b8;margin-top:8px">Tap karke dekho</div></div>';
+    alertEl.innerHTML=rHTML;
+  }else{alertEl.innerHTML='';}
+  var open=allComplaints.filter(function(c){return c.status==='open';}).length;
+  var inprog=allComplaints.filter(function(c){return c.status==='inprogress';}).length;
+  var resolved=allComplaints.filter(function(c){return c.status==='resolved';}).length;
+  var expiring=allMachines.filter(function(m){return warrantyStatus(m.warrantyExpiry)==='soon';}).length;
+  document.getElementById('dashStats').innerHTML=
+    '<div class="stat-card" style="border-left:3px solid #ef4444"><div class="stat-icon">Complaints</div><div class="stat-val" style="color:#ef4444">'+open+'</div><div class="stat-label">Open</div></div>'+
+    '<div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-icon">In Progress</div><div class="stat-val" style="color:#f59e0b">'+inprog+'</div><div class="stat-label">Working</div></div>'+
+    '<div class="stat-card" style="border-left:3px solid #22c55e"><div class="stat-icon">Resolved</div><div class="stat-val" style="color:#22c55e">'+resolved+'</div><div class="stat-label">Done</div></div>'+
+    '<div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-icon">Warranty</div><div class="stat-val" style="color:#f59e0b">'+expiring+'</div><div class="stat-label">Expiring</div></div>';
+  var warnM=allMachines.filter(function(m){return warrantyStatus(m.warrantyExpiry)==='soon';}).slice(0,3);
+  document.getElementById('dashWarranty').innerHTML=warnM.length===0?'<div class="empty" style="padding:12px">Koi warranty expire hone wali nahi</div>':warnM.map(function(m){return machineCardHTML(m);}).join('');
+  var openList=allComplaints.filter(function(c){return c.status==='open';}).slice(0,4);
+  document.getElementById('dashComplaints').innerHTML=openList.length===0?'<div class="empty">Koi open complaint nahi</div>':openList.map(function(c){return complaintCardHTML(c);}).join('');
 }
 
-// ── COMPLAINTS ──
-async function loadComplaints() {
-  document.getElementById('complaintsList').innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
-  const params = { action: 'getComplaints' };
-  if (currentUser.role === 'engineer') params.engineerId = currentUser.id;
-  const res = await api(params);
-  allComplaints = res.success ? res.data : [];
+async function loadComplaints(){
+  document.getElementById('complaintsList').innerHTML='<div class="loading">Loading...</div>';
+  var params={action:'getComplaints'};
+  if(currentUser.role==='engineer')params.engineerId=currentUser.id;
+  var res=await api(params);allComplaints=res.success?res.data:[];renderComplaints();
+}
+
+function filterComplaints(f){
+  currentFilter=f;
+  document.querySelectorAll('[id^="f-"]').forEach(function(b){b.style.background='transparent';b.style.color='#60a5fa';});
+  var btn=document.getElementById('f-'+f);if(btn){btn.style.background='#334155';btn.style.color='#fff';}
   renderComplaints();
 }
 
-function filterComplaints(f) {
-  currentFilter = f;
-  document.querySelectorAll('[id^="f-"]').forEach(b => { b.style.background = 'transparent'; b.style.color = '#60a5fa'; });
-  const btn = document.getElementById('f-' + f);
-  if (btn) { btn.style.background = '#334155'; btn.style.color = '#fff'; }
-  renderComplaints();
+function renderComplaints(){
+  var filtered=currentFilter==='all'?allComplaints:allComplaints.filter(function(c){return c.status===currentFilter;});
+  document.getElementById('complaintsList').innerHTML=filtered.length===0?'<div class="empty">Koi complaint nahi</div>':filtered.map(function(c){return complaintCardHTML(c);}).join('');
 }
 
-function renderComplaints() {
-  const filtered = currentFilter === 'all' ? allComplaints : allComplaints.filter(c => c.status === currentFilter);
-  document.getElementById('complaintsList').innerHTML = filtered.length === 0
-    ? '<div class="empty">Koi complaint nahi</div>'
-    : filtered.map(c => complaintCardHTML(c)).join('');
+function complaintCardHTML(c){
+  var sl=c.status==='open'?'Open':c.status==='inprogress'?'In Progress':'Resolved';
+  return '<div class="complaint-card '+c.status+'" onclick="openComplaintDetail(\''+c.id+'\')">'+
+    '<div class="flex-between"><div style="font-weight:700;font-size:14px">'+(c.title||'Complaint')+'</div><span class="badge badge-'+(c.status==='inprogress'?'inprogress':c.status)+'">'+sl+'</span></div>'+
+    '<div class="text-muted mt-8">'+c.customerName+' - '+(c.phone||'--')+'</div>'+
+    '<div class="text-muted">'+(c.area||'--')+' - '+(c.assignedEngineerName||'Unassigned')+'</div>'+
+    (c.notes?'<div style="font-size:11px;color:#60a5fa;margin-top:4px">'+c.notes+'</div>':'')+
+    '</div>';
 }
 
-function complaintCardHTML(c) {
-  const statusLabel = c.status === 'open' ? '🔴 Open' : c.status === 'inprogress' ? '🟡 In Progress' : '✅ Resolved';
-  return `<div class="complaint-card ${c.status}" onclick="openComplaintDetail('${c.id}')">
-    <div class="flex-between">
-      <div style="font-weight:700;font-size:14px">${c.title || 'Complaint'}</div>
-      <span class="badge badge-${c.status === 'inprogress' ? 'inprogress' : c.status}">${statusLabel}</span>
-    </div>
-    <div class="text-muted mt-8">${c.customerName} • ${c.phone || '—'}</div>
-    <div class="text-muted">${c.area || '—'} • ${c.assignedEngineerName || '⚠️ Unassigned'}</div>
-    ${c.machineInfo ? `<div style="font-size:11px;color:#60a5fa;margin-top:4px">🔧 ${c.machineInfo}</div>` : ''}
-  </div>`;
-}
-
-function openComplaintDetail(id) {
-  const c = allComplaints.find(x => String(x.id) === String(id));
-  if (!c) return;
-  const isAdminManager = currentUser.role !== 'engineer';
-  let assignSection = '';
-  if (isAdminManager) {
-    const engineers = allEmployees.filter(e => e.role === 'engineer');
-    assignSection = `
-      <div class="divider"></div>
-      <div style="font-weight:700;margin-bottom:8px">👷 Engineer Assign Karo</div>
-      <select id="assignEng" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px;margin-bottom:8px">
-        <option value="">Select Engineer</option>
-        ${engineers.map(e => `<option value="${e.id}|${e.name}" ${String(e.id) === String(c.assignedEngineerId) ? 'selected' : ''}>${e.name} — ${e.area || 'All'}</option>`).join('')}
-      </select>
-      <button class="btn-warning btn-sm" onclick="assignEngineer('${c.id}')">✅ Assign Karo</button>
-    `;
+function openComplaintDetail(id){
+  var c=allComplaints.find(function(x){return String(x.id)===String(id);});if(!c)return;
+  var isAM=currentUser.role!=='engineer';
+  var assignSection='';
+  if(isAM){
+    var engs=allEmployees.filter(function(e){return e.role==='engineer';});
+    var engOpts=engs.map(function(e){return '<option value="'+e.id+'|'+e.name+'"'+(String(e.id)===String(c.assignedEngineerId)?' selected':'')+'>'+e.name+' - '+(e.area||'All')+'</option>';}).join('');
+    assignSection='<div class="divider"></div><div style="font-weight:700;margin-bottom:8px">Assign Engineer</div>'+
+      '<select id="assignEng" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px;margin-bottom:8px"><option value="">Select Engineer</option>'+engOpts+'</select>'+
+      '<button class="btn-warning btn-sm" onclick="assignEngineer(\''+c.id+'\')">Assign Karo</button>';
   }
-  openModal('custom', `
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title">📋 Complaint Detail</div>
-    <div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:600">${c.customerName}</div></div>
-    <div class="field"><label>Phone</label><div style="padding:4px 0">${c.phone || '—'}</div></div>
-    <div class="field"><label>Area</label><div style="padding:4px 0">${c.area || '—'}</div></div>
-    <div class="field"><label>Machine</label><div style="padding:4px 0;color:#60a5fa">${c.machineInfo || '—'}</div></div>
-    <div class="field"><label>Problem</label><div style="padding:4px 0;font-weight:600">${c.title}</div></div>
-    <div class="field"><label>Description</label><div style="padding:4px 0;font-size:13px;color:#94a3b8">${c.description || '—'}</div></div>
-    <div class="field"><label>Assigned To</label><div style="padding:4px 0">${c.assignedEngineerName || '⚠️ Unassigned'}</div></div>
-    <div class="field"><label>Status</label><span class="badge badge-${c.status === 'inprogress' ? 'inprogress' : c.status}">${c.status}</span></div>
-    ${assignSection}
-    <div class="divider"></div>
-    <div style="font-weight:700;margin-bottom:10px">🔄 Status Update</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      ${c.status !== 'inprogress' ? `<button class="btn-warning btn-sm" onclick="updateStatus('${c.id}','inprogress')">🟡 In Progress</button>` : '<span style="color:#fbbf24;font-size:12px">🟡 Already In Progress</span>'}
-      ${c.status !== 'resolved' ? `<button class="btn-success btn-sm" onclick="updateStatus('${c.id}','resolved')">✅ Resolved</button>` : '<span style="color:#4ade80;font-size:12px">✅ Already Resolved</span>'}
-      ${c.status !== 'open' && isAdminManager ? `<button class="btn-outline btn-sm" onclick="updateStatus('${c.id}','open')">🔴 Reopen</button>` : ''}
-    </div>
-  `);
+  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Complaint Detail</div>'+
+    '<div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:600">'+c.customerName+'</div></div>'+
+    '<div class="field"><label>Phone</label><div style="padding:4px 0">'+(c.phone||'--')+'</div></div>'+
+    '<div class="field"><label>Area</label><div style="padding:4px 0">'+(c.area||'--')+'</div></div>'+
+    '<div class="field"><label>Machine</label><div style="padding:4px 0;color:#60a5fa">'+(c.notes||'--')+'</div></div>'+
+    '<div class="field"><label>Problem</label><div style="padding:4px 0;font-weight:600">'+c.title+'</div></div>'+
+    '<div class="field"><label>Description</label><div style="padding:4px 0;font-size:13px;color:#94a3b8">'+(c.description||'--')+'</div></div>'+
+    '<div class="field"><label>Assigned To</label><div style="padding:4px 0">'+(c.assignedEngineerName||'Unassigned')+'</div></div>'+
+    assignSection+'<div class="divider"></div><div style="font-weight:700;margin-bottom:10px">Status Update</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    (c.status!=='inprogress'?'<button class="btn-warning btn-sm" onclick="updateStatus(\''+c.id+'\',\'inprogress\')">In Progress</button>':'<span style="color:#fbbf24;font-size:12px">Already In Progress</span>')+
+    (c.status!=='resolved'?'<button class="btn-success btn-sm" onclick="updateStatus(\''+c.id+'\',\'resolved\')">Resolved</button>':'<span style="color:#4ade80;font-size:12px">Already Resolved</span>')+
+    (c.status!=='open'&&isAM?'<button class="btn-outline btn-sm" onclick="updateStatus(\''+c.id+'\',\'open\')">Reopen</button>':'')+
+    '</div>');
 }
 
-async function assignEngineer(complaintId) {
-  const val = document.getElementById('assignEng').value;
-  if (!val) { toast('Engineer select karo!', '#ef4444'); return; }
-  const [engId, engName] = val.split('|');
-  const res = await api({ action: 'updateComplaint', id: complaintId, assignedEngineerId: engId, assignedEngineerName: engName });
-  if (res.success) { toast('Engineer assign ho gaya! ✅'); closeModal(); loadComplaints(); }
-  else toast('Error: ' + res.error, '#ef4444');
+async function assignEngineer(cid){
+  var val=document.getElementById('assignEng').value;if(!val){toast('Engineer select karo!','#ef4444');return;}
+  var parts=val.split('|');
+  var res=await api({action:'updateComplaint',id:cid,assignedEngineerId:parts[0],assignedEngineerName:parts[1]});
+  if(res.success){toast('Assign ho gaya!');closeModal();loadComplaints();}else toast('Error: '+res.error,'#ef4444');
 }
 
-async function updateStatus(complaintId, status) {
-  const res = await api({ action: 'updateComplaint', id: complaintId, status });
-  if (res.success) { toast('Status update ho gaya! ✅'); closeModal(); loadComplaints(); }
-  else toast('Error: ' + res.error, '#ef4444');
+async function updateStatus(cid,status){
+  var res=await api({action:'updateComplaint',id:cid,status:status});
+  if(res.success){toast('Status update ho gaya!');closeModal();loadComplaints();}else toast('Error: '+res.error,'#ef4444');
 }
 
-// ── MACHINES ──
-async function loadMachines() {
-  document.getElementById('machinesList').innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
-  const [mr, mtr] = await Promise.all([
-    api({ action: 'getMachines' }),
-    api({ action: 'getMachineTypes' })
-  ]);
-  allMachines = mr.success ? mr.data : [];
-  allMachineTypes = mtr.success ? mtr.data : [];
-  renderMachines(allMachines);
+async function loadPayments(){
+  document.getElementById('paymentsList').innerHTML='<div class="loading">Loading...</div>';
+  var res=await api({action:'getPayments'});allPayments=res.success?res.data:[];filterPayments(currentPaymentFilter);
 }
 
-function filterMachines(f) {
-  currentMachineFilter = f;
-  document.querySelectorAll('[id^="mf-"]').forEach(b => { b.style.background = 'transparent'; b.style.color = '#60a5fa'; });
-  const btn = document.getElementById('mf-' + f);
-  if (btn) { btn.style.background = '#334155'; btn.style.color = '#fff'; }
-  let filtered = allMachines;
-  if (f !== 'all') filtered = allMachines.filter(m => warrantyStatus(m.warrantyExpiry) === f);
-  renderMachines(filtered);
+function filterPayments(f){
+  currentPaymentFilter=f;
+  document.querySelectorAll('[id^="pf-"]').forEach(function(b){b.style.background='transparent';b.style.color='#60a5fa';});
+  var btn=document.getElementById('pf-'+f);if(btn){btn.style.background='#334155';btn.style.color='#fff';}
+  var filtered=allPayments;
+  if(f==='paid')filtered=allPayments.filter(function(p){return p.status==='paid';});
+  else if(f==='today')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='today';});
+  else if(f==='overdue')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='overdue';});
+  else if(f==='pending')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='pending';});
+  renderPayments(filtered);
 }
 
-function searchMachines(q) {
-  const filtered = allMachines.filter(m =>
-    m.customerName?.toLowerCase().includes(q.toLowerCase()) ||
-    m.serialNumber?.toLowerCase().includes(q.toLowerCase()) ||
-    m.model?.toLowerCase().includes(q.toLowerCase())
-  );
-  renderMachines(filtered);
+function renderPayments(list){
+  document.getElementById('paymentsList').innerHTML=list.length===0?'<div class="empty">Koi payment record nahi</div>':list.map(function(p){return paymentCardHTML(p);}).join('');
 }
 
-function renderMachines(list) {
-  document.getElementById('machinesList').innerHTML = list.length === 0
-    ? '<div class="empty">Koi machine nahi</div>'
-    : list.map(m => machineCardHTML(m)).join('');
+function paymentCardHTML(p){
+  var ps=getPaymentStatus(p);var pending=parseFloat(p.pendingAmount||0);
+  var psLabel=ps==='paid'?'Paid':ps==='today'?'Aaj':ps==='overdue'?'Overdue':'Pending';
+  var rdDays=p.reminderDate?daysFromToday(p.reminderDate):null;var pdDays=p.promiseDate?daysFromToday(p.promiseDate):null;
+  return '<div class="payment-card '+ps+'" onclick="openPaymentDetail(\''+p.id+'\')">'+
+    '<div class="flex-between"><div style="font-weight:700;font-size:14px">'+p.customerName+'</div><span class="badge badge-'+(ps==='paid'?'paid':ps==='overdue'?'overdue':ps==='today'?'today':'pending')+'">'+psLabel+'</span></div>'+
+    '<div class="text-muted mt-8">'+(p.phone||'--')+'</div>'+
+    '<div style="font-size:13px;color:'+(pending>0?'#f87171':'#4ade80')+';font-weight:700;margin-top:4px">'+(pending>0?'Rs.'+pending.toLocaleString()+' pending':'Fully Paid')+'</div>'+
+    (p.promiseNote?'<div style="font-size:12px;color:#fbbf24;margin-top:4px">Wada: "'+p.promiseNote+'"</div>':'')+
+    (p.reminderDate?'<div style="font-size:11px;color:#94a3b8;margin-top:4px">Reminder: '+fmt(p.reminderDate)+(rdDays!==null?' ('+dLabel(rdDays)+')':'')+'</div>':'')+
+    (p.promiseDate?'<div style="font-size:11px;color:#94a3b8">Promise: '+fmt(p.promiseDate)+(pdDays!==null?' ('+dLabel(pdDays)+')':'')+'</div>':'')+
+    '</div>';
 }
 
-function machineCardHTML(m) {
-  const ws = warrantyStatus(m.warrantyExpiry);
-  const pct = warrantyPercent(m.installationDate, m.warrantyExpiry);
-  const barColor = ws === 'ok' ? '#22c55e' : ws === 'soon' ? '#f59e0b' : '#ef4444';
-  return `<div class="machine-card warranty-${ws}" onclick="openMachineDetail('${m.id}')">
-    <div class="flex-between">
-      <div>
-        <div style="font-weight:700;font-size:14px">${m.customerName}</div>
-        <div class="text-muted">${m.model} • ${m.hooks} Hooks</div>
-      </div>
-      <span class="badge badge-warranty-${ws}">${ws === 'ok' ? 'Valid' : ws === 'soon' ? 'Expiring' : 'Expired'}</span>
-    </div>
-    <div style="font-size:12px;color:#60a5fa;margin-top:4px">S/N: ${m.serialNumber || '—'}</div>
-    <div style="font-size:11px;color:#94a3b8;margin-top:2px">${warrantyLabel(m.warrantyExpiry)}</div>
-    <div class="warranty-bar"><div class="warranty-fill" style="width:${pct}%;background:${barColor}"></div></div>
-  </div>`;
+function openPaymentDetail(id){
+  var p=allPayments.find(function(x){return String(x.id)===String(id);});if(!p)return;
+  var pending=parseFloat(p.pendingAmount||0);
+  var rdVal=p.reminderDate?new Date(p.reminderDate).toISOString().split('T')[0]:'';
+  var pdVal=p.promiseDate?new Date(p.promiseDate).toISOString().split('T')[0]:'';
+  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Payment Detail</div>'+
+    '<div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:700">'+p.customerName+'</div></div>'+
+    '<div class="field"><label>Phone</label><div style="padding:4px 0">'+(p.phone||'--')+'</div></div>'+
+    '<div class="field"><label>Total Amount</label><div style="padding:4px 0">Rs.'+parseFloat(p.totalAmount||0).toLocaleString()+'</div></div>'+
+    '<div class="field"><label>Paid Amount</label><div style="padding:4px 0;color:#4ade80">Rs.'+parseFloat(p.paidAmount||0).toLocaleString()+'</div></div>'+
+    '<div class="field"><label>Pending Amount</label><div style="padding:4px 0;color:'+(pending>0?'#f87171':'#4ade80')+';font-weight:700">Rs.'+pending.toLocaleString()+'</div></div>'+
+    '<div class="field"><label>Customer Ka Wada</label><div style="padding:4px 0;color:#fbbf24">'+(p.promiseNote||'--')+'</div></div>'+
+    '<div class="field"><label>Promise Date</label><div style="padding:4px 0">'+fmt(p.promiseDate)+'</div></div>'+
+    '<div class="field"><label>Reminder Date</label><div style="padding:4px 0">'+fmt(p.reminderDate)+'</div></div>'+
+    '<div class="divider"></div><div style="font-weight:700;margin-bottom:10px">Update Karo</div>'+
+    '<div class="field"><label>Naya Paid Amount (Rs.)</label><input id="upd-paid" type="number" value="'+(p.paidAmount||0)+'"></div>'+
+    '<div class="field"><label>Naya Reminder Date</label><input id="upd-reminder" type="date" value="'+rdVal+'"></div>'+
+    '<div class="field"><label>Customer Ka Naya Wada</label><input id="upd-promise" placeholder="Kya bola..." value="'+(p.promiseNote||'')+'"></div>'+
+    '<div class="field"><label>Naya Promise Date</label><input id="upd-promdate" type="date" value="'+pdVal+'"></div>'+
+    '<button class="btn-primary" onclick="updatePaymentRecord(\''+p.id+'\')">Update Karo</button>'+
+    (p.status!=='paid'?'<button class="btn-success" style="margin-top:8px;width:100%" onclick="markPaid(\''+p.id+'\',\''+p.totalAmount+'\')">Fully Paid Mark Karo</button>':''));
 }
 
-function openMachineDetail(id) {
-  const m = allMachines.find(x => String(x.id) === String(id));
-  if (!m) return;
-  const ws = warrantyStatus(m.warrantyExpiry);
-  openModal('custom', `
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title">🔧 Machine Detail</div>
-    <div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:700">${m.customerName}</div></div>
-    <div class="field"><label>Model</label><div style="padding:4px 0">${m.model}</div></div>
-    <div class="field"><label>Hooks</label><div style="padding:4px 0">${m.hooks}</div></div>
-    <div class="field"><label>Serial Number</label><div style="padding:4px 0;color:#60a5fa;font-weight:700">${m.serialNumber || '—'}</div></div>
-    <div class="field"><label>Installation Date</label><div style="padding:4px 0">${fmt(m.installationDate)}</div></div>
-    <div class="field"><label>Warranty Expiry</label><div style="padding:4px 0;color:${ws === 'ok' ? '#4ade80' : ws === 'soon' ? '#fbbf24' : '#f87171'};font-weight:700">${fmt(m.warrantyExpiry)} — ${warrantyLabel(m.warrantyExpiry)}</div></div>
-    <div class="field"><label>Extended Warranty</label><div style="padding:4px 0">${m.extendedWarranty ? `✅ Till ${fmt(m.extendedWarrantyExpiry)}` : '❌ Nahi hai'}</div></div>
-    <div class="field"><label>Notes</label><div style="padding:4px 0;color:#94a3b8;font-size:13px">${m.notes || '—'}</div></div>
-  `);
+async function updatePaymentRecord(id){
+  var res=await api({action:'updatePayment',id:id,paidAmount:document.getElementById('upd-paid').value,reminderDate:document.getElementById('upd-reminder').value,promiseNote:document.getElementById('upd-promise').value,promiseDate:document.getElementById('upd-promdate').value});
+  if(res.success){toast('Update ho gaya!');closeModal();loadPayments();}else toast('Error: '+res.error,'#ef4444');
 }
 
-// ── ATTENDANCE ──
-async function loadAttendance() {
-  const dateEl = document.getElementById('attDate');
-  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short' });
-  const res = await api({ action: 'getAttendance', employeeId: currentUser.id });
-  const records = res.success ? res.data : [];
-  const todayStr = new Date().toDateString();
-  const todayRec = records.find(r => new Date(r.date).toDateString() === todayStr);
-  const btnIn = document.getElementById('btnCheckIn');
-  const btnOut = document.getElementById('btnCheckOut');
-  const statusEl = document.getElementById('attStatus');
-
-  if (!todayRec) {
-    statusEl.textContent = 'Aaj check-in nahi hua'; statusEl.className = 'text-danger';
-    btnIn.style.display = 'block'; btnOut.style.display = 'none';
-  } else if (!todayRec.checkOut) {
-    statusEl.textContent = `✅ Check-in: ${new Date(todayRec.checkIn).toLocaleTimeString('en-IN')}`;
-    statusEl.className = 'text-success'; btnIn.style.display = 'none'; btnOut.style.display = 'block';
-  } else {
-    const ot = parseFloat(todayRec.otHours) > 0 ? ` | OT: ${todayRec.otHours}h` : '';
-    statusEl.innerHTML = `✅ In: ${new Date(todayRec.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} | Out: ${new Date(todayRec.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}${ot}`;
-    statusEl.className = 'text-success'; btnIn.style.display = 'none'; btnOut.style.display = 'none';
-  }
-
-  document.getElementById('attHistory').innerHTML = records.slice(0,10).map(r => {
-    const d = new Date(r.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
-    const inT = r.checkIn ? new Date(r.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
-    const outT = r.checkOut ? new Date(r.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
-    const ot = parseFloat(r.otHours) > 0 ? `<span class="text-warning"> +${r.otHours}h OT</span>` : '';
-    return `<div class="card" style="margin-bottom:8px"><div class="flex-between">
-      <div><div style="font-weight:700">${d}</div><div class="text-muted">In: ${inT} | Out: ${outT}${ot}</div></div>
-      <span class="badge badge-${r.status === 'present' ? 'resolved' : 'open'}">${r.status}</span>
-    </div></div>`;
-  }).join('') || '<div class="empty">Koi record nahi</div>';
+async function markPaid(id,total){
+  var res=await api({action:'updatePayment',id:id,paidAmount:total,status:'paid'});
+  if(res.success){toast('Fully paid mark ho gaya!');closeModal();loadPayments();}else toast('Error: '+res.error,'#ef4444');
 }
 
-async function doCheckIn() {
-  const res = await api({ action: 'checkIn', employeeId: currentUser.id, employeeName: currentUser.name });
-  if (res.success) { toast('Check-in ho gaya! ✅'); loadAttendance(); }
-  else toast(res.error || 'Error', '#ef4444');
+async function loadMachines(){
+  document.getElementById('machinesList').innerHTML='<div class="loading">Loading...</div>';
+  var mr=await api({action:'getMachines'});var mtr=await api({action:'getMachineTypes'});
+  allMachines=mr.success?mr.data:[];allMachineTypes=mtr.success?mtr.data:[];renderMachines(allMachines);
 }
 
-async function doCheckOut() {
-  const res = await api({ action: 'checkOut', employeeId: currentUser.id });
-  if (res.success) {
-    const ot = parseFloat(res.otHours) > 0 ? ` OT: ${res.otHours}h` : '';
-    toast(`Check-out ho gaya!${ot} ✅`); loadAttendance();
-  } else toast(res.error || 'Error', '#ef4444');
+function filterMachines(f){
+  currentMachineFilter=f;
+  document.querySelectorAll('[id^="mf-"]').forEach(function(b){b.style.background='transparent';b.style.color='#60a5fa';});
+  var btn=document.getElementById('mf-'+f);if(btn){btn.style.background='#334155';btn.style.color='#fff';}
+  renderMachines(f==='all'?allMachines:allMachines.filter(function(m){return warrantyStatus(m.warrantyExpiry)===f;}));
 }
 
-// ── EMPLOYEES ──
-async function loadEmployees() {
-  document.getElementById('employeesList').innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
-  const res = await api({ action: 'getEmployees' });
-  allEmployees = res.success ? res.data : [];
-  renderEmployees(allEmployees);
+function searchMachines(q){
+  renderMachines(allMachines.filter(function(m){return (m.customerName&&m.customerName.toLowerCase().includes(q.toLowerCase()))||(m.serialNumber&&m.serialNumber.toLowerCase().includes(q.toLowerCase()))||(m.model&&m.model.toLowerCase().includes(q.toLowerCase()));}));
 }
 
-function renderEmployees(list) {
-  document.getElementById('employeesList').innerHTML = list.length === 0
-    ? '<div class="empty">Koi employee nahi</div>'
-    : list.map(e => `<div class="emp-card">
-        <div><div style="font-weight:700">${e.name}</div><div class="text-muted">${e.phone} • ${e.area || 'All'}</div></div>
-        <span class="badge badge-${e.role}">${e.role}</span>
-      </div>`).join('');
+function renderMachines(list){
+  document.getElementById('machinesList').innerHTML=list.length===0?'<div class="empty">Koi machine nahi</div>':list.map(function(m){return machineCardHTML(m);}).join('');
 }
 
-function searchEmployees(q) {
-  renderEmployees(allEmployees.filter(e =>
-    e.name?.toLowerCase().includes(q.toLowerCase()) || e.phone?.includes(q)
-  ));
+function machineCardHTML(m){
+  var ws=warrantyStatus(m.warrantyExpiry);var pct=0;
+  if(m.installationDate&&m.warrantyExpiry){var total=new Date(m.warrantyExpiry)-new Date(m.installationDate);var elapsed=new Date()-new Date(m.installationDate);pct=Math.min(100,Math.max(0,Math.round((elapsed/total)*100)));}
+  var bc=ws==='ok'?'#22c55e':ws==='soon'?'#f59e0b':'#ef4444';
+  return '<div class="machine-card warranty-'+ws+'" onclick="openMachineDetail(\''+m.id+'\')">'+
+    '<div class="flex-between"><div><div style="font-weight:700;font-size:14px">'+m.customerName+'</div><div class="text-muted">'+m.model+' - '+m.hooks+' Hooks</div></div><span class="badge badge-warranty-'+ws+'">'+(ws==='ok'?'Valid':ws==='soon'?'Expiring':'Expired')+'</span></div>'+
+    '<div style="font-size:12px;color:#60a5fa;margin-top:4px">S/N: '+(m.serialNumber||'--')+'</div>'+
+    '<div style="font-size:11px;color:#94a3b8;margin-top:2px">'+warrantyLabel(m.warrantyExpiry)+'</div>'+
+    '<div class="warranty-bar"><div class="warranty-fill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
 }
 
-// ── CUSTOMERS ──
-async function loadCustomers() {
-  document.getElementById('customersList').innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
-  const res = await api({ action: 'getCustomers' });
-  allCustomers = res.success ? res.data : [];
-  renderCustomers(allCustomers);
+function openMachineDetail(id){
+  var m=allMachines.find(function(x){return String(x.id)===String(id);});if(!m)return;
+  var ws=warrantyStatus(m.warrantyExpiry);var wc=ws==='ok'?'#4ade80':ws==='soon'?'#fbbf24':'#f87171';
+  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Machine Detail</div>'+
+    '<div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:700">'+m.customerName+'</div></div>'+
+    '<div class="field"><label>Model</label><div style="padding:4px 0">'+m.model+'</div></div>'+
+    '<div class="field"><label>Hooks</label><div style="padding:4px 0">'+m.hooks+'</div></div>'+
+    '<div class="field"><label>Serial Number</label><div style="padding:4px 0;color:#60a5fa;font-weight:700">'+(m.serialNumber||'--')+'</div></div>'+
+    '<div class="field"><label>Installation Date</label><div style="padding:4px 0">'+fmt(m.installationDate)+'</div></div>'+
+    '<div class="field"><label>Warranty Expiry</label><div style="padding:4px 0;color:'+wc+';font-weight:700">'+fmt(m.warrantyExpiry)+' - '+warrantyLabel(m.warrantyExpiry)+'</div></div>'+
+    '<div class="field"><label>Notes</label><div style="padding:4px 0;color:#94a3b8;font-size:13px">'+(m.notes||'--')+'</div></div>');
 }
 
-function renderCustomers(list) {
-  document.getElementById('customersList').innerHTML = list.length === 0
-    ? '<div class="empty">Koi customer nahi</div>'
-    : list.map(c => {
-        const pend = c.totalAmount ? parseFloat(c.totalAmount) - parseFloat(c.paidAmount || 0) : null;
-        return `<div class="card" style="border-left:3px solid ${pend > 0 ? '#ef4444' : '#22c55e'};cursor:pointer" onclick="openCustomerDetail('${c.id}')">
-          <div class="flex-between">
-            <div>
-              <div style="font-weight:700">${c.name}</div>
-              <div class="text-muted">${c.phone} • ${c.area || '—'}</div>
-              ${pend > 0 ? `<div class="text-danger" style="font-size:12px;margin-top:2px">₹${parseFloat(pend).toLocaleString()} pending</div>` : '<div class="text-success" style="font-size:12px;margin-top:2px">Fully Paid ✅</div>'}
-            </div>
-            <button class="btn-outline btn-sm" onclick="event.stopPropagation();openAddMachineForCustomer('${c.id}','${c.name}')">+ Machine</button>
-          </div>
-        </div>`;
-      }).join('');
+async function loadAttendance(){
+  var de=document.getElementById('attDate');if(de)de.textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'});
+  var res=await api({action:'getAttendance',employeeId:currentUser.id});var records=res.success?res.data:[];
+  var todayStr=new Date().toDateString();var todayRec=records.find(function(r){return new Date(r.date).toDateString()===todayStr;});
+  var btnIn=document.getElementById('btnCheckIn');var btnOut=document.getElementById('btnCheckOut');var statusEl=document.getElementById('attStatus');
+  if(!todayRec){statusEl.textContent='Aaj check-in nahi hua';statusEl.className='text-danger';btnIn.style.display='block';btnOut.style.display='none';}
+  else if(!todayRec.checkOut){statusEl.textContent='Check-in: '+new Date(todayRec.checkIn).toLocaleTimeString('en-IN');statusEl.className='text-success';btnIn.style.display='none';btnOut.style.display='block';}
+  else{var ot=parseFloat(todayRec.otHours)>0?' | OT: '+todayRec.otHours+'h':'';statusEl.innerHTML='In: '+new Date(todayRec.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' | Out: '+new Date(todayRec.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+ot;statusEl.className='text-success';btnIn.style.display='none';btnOut.style.display='none';}
+  document.getElementById('attHistory').innerHTML=records.slice(0,10).map(function(r){
+    var d=new Date(r.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+    var inT=r.checkIn?new Date(r.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'--';
+    var outT=r.checkOut?new Date(r.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'--';
+    var ot=parseFloat(r.otHours)>0?'<span class="text-warning"> +'+r.otHours+'h OT</span>':'';
+    return '<div class="card" style="margin-bottom:8px"><div class="flex-between"><div><div style="font-weight:700">'+d+'</div><div class="text-muted">In: '+inT+' | Out: '+outT+ot+'</div></div><span class="badge badge-'+(r.status==='present'?'resolved':'open')+'">'+r.status+'</span></div></div>';
+  }).join('')||'<div class="empty">Koi record nahi</div>';
 }
 
-function searchCustomers(q) {
-  renderCustomers(allCustomers.filter(c =>
-    c.name?.toLowerCase().includes(q.toLowerCase()) || c.phone?.includes(q)
-  ));
+async function doCheckIn(){var res=await api({action:'checkIn',employeeId:currentUser.id,employeeName:currentUser.name});if(res.success){toast('Check-in ho gaya!');loadAttendance();}else toast(res.error||'Error','#ef4444');}
+async function doCheckOut(){var res=await api({action:'checkOut',employeeId:currentUser.id});if(res.success){var ot=parseFloat(res.otHours)>0?' OT: '+res.otHours+'h':'';toast('Check-out ho gaya!'+ot);loadAttendance();}else toast(res.error||'Error','#ef4444');}
+
+async function loadEmployees(){
+  document.getElementById('employeesList').innerHTML='<div class="loading">Loading...</div>';
+  var res=await api({action:'getEmployees'});allEmployees=res.success?res.data:[];renderEmployees(allEmployees);
+}
+function renderEmployees(list){document.getElementById('employeesList').innerHTML=list.length===0?'<div class="empty">Koi employee nahi</div>':list.map(function(e){return '<div class="emp-card"><div><div style="font-weight:700">'+e.name+'</div><div class="text-muted">'+e.phone+' - '+(e.area||'All')+'</div></div><span class="badge badge-'+e.role+'">'+e.role+'</span></div>';}).join('');}
+function searchEmployees(q){renderEmployees(allEmployees.filter(function(e){return(e.name&&e.name.toLowerCase().includes(q.toLowerCase()))||(e.phone&&e.phone.includes(q));}));}
+
+async function loadCustomers(){
+  document.getElementById('customersList').innerHTML='<div class="loading">Loading...</div>';
+  var res=await api({action:'getCustomers'});allCustomers=res.success?res.data:[];renderCustomers(allCustomers);
+}
+function renderCustomers(list){
+  document.getElementById('customersList').innerHTML=list.length===0?'<div class="empty">Koi customer nahi</div>':list.map(function(c){
+    var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):null;
+    return '<div class="card" style="border-left:3px solid '+(pend>0?'#ef4444':'#22c55e')+';cursor:pointer" onclick="openCustomerDetail(\''+c.id+'\')">'+
+      '<div class="flex-between"><div><div style="font-weight:700">'+c.name+'</div><div class="text-muted">'+c.phone+' - '+(c.area||'--')+'</div>'+
+      (pend>0?'<div class="text-danger" style="font-size:12px;margin-top:2px">Rs.'+parseFloat(pend).toLocaleString()+' pending</div>':'<div class="text-success" style="font-size:12px;margin-top:2px">Fully Paid</div>')+
+      '</div><button class="btn-outline btn-sm" onclick="event.stopPropagation();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div></div>';
+  }).join('');
+}
+function searchCustomers(q){renderCustomers(allCustomers.filter(function(c){return(c.name&&c.name.toLowerCase().includes(q.toLowerCase()))||(c.phone&&c.phone.includes(q));}));}
+
+async function openCustomerDetail(id){
+  var c=allCustomers.find(function(x){return String(x.id)===String(id);});if(!c)return;
+  var mr=await api({action:'getMachines',customerId:id});var machines=mr.success?mr.data:[];
+  var mHTML=machines.length===0?'<div style="color:#64748b;font-size:13px;padding:8px 0">Koi machine nahi</div>':machines.map(function(m){var ws=warrantyStatus(m.warrantyExpiry);var bc=ws==='ok'?'#22c55e':ws==='soon'?'#f59e0b':'#ef4444';return '<div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid '+bc+'"><div style="font-weight:600;font-size:13px">'+m.model+' - '+m.hooks+' Hooks</div><div style="font-size:11px;color:#60a5fa">S/N: '+(m.serialNumber||'--')+'</div><div style="font-size:11px;color:#94a3b8">'+warrantyLabel(m.warrantyExpiry)+'</div></div>';}).join('');
+  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">'+c.name+'</div>'+
+    '<div class="field"><label>Phone</label><div style="padding:4px 0">'+c.phone+'</div></div>'+
+    '<div class="field"><label>Area</label><div style="padding:4px 0">'+(c.area||'--')+'</div></div>'+
+    '<div class="divider"></div><div class="flex-between" style="margin-bottom:10px"><div style="font-weight:700">Machines ('+machines.length+')</div><button class="btn-success btn-sm" onclick="closeModal();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div>'+
+    mHTML+'<div class="divider"></div>'+
+    '<button class="btn-warning" style="width:100%" onclick="closeModal();openAddPaymentForCustomer(\''+c.id+'\',\''+c.name+'\',\''+c.phone+'\',\''+c.totalAmount+'\',\''+c.paidAmount+'\')">Payment Reminder Add Karo</button>');
 }
 
-async function openCustomerDetail(id) {
-  const c = allCustomers.find(x => String(x.id) === String(id));
-  if (!c) return;
-  const mr = await api({ action: 'getMachines', customerId: id });
-  const machines = mr.success ? mr.data : [];
-  const machineHTML = machines.length === 0
-    ? '<div style="color:#64748b;font-size:13px;padding:8px 0">Koi machine nahi — + Machine button se add karo</div>'
-    : machines.map(m => {
-        const ws = warrantyStatus(m.warrantyExpiry);
-        return `<div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid ${ws === 'ok' ? '#22c55e' : ws === 'soon' ? '#f59e0b' : '#ef4444'}">
-          <div style="font-weight:600;font-size:13px">${m.model} • ${m.hooks} Hooks</div>
-          <div style="font-size:11px;color:#60a5fa">S/N: ${m.serialNumber || '—'}</div>
-          <div style="font-size:11px;color:#94a3b8">${warrantyLabel(m.warrantyExpiry)}</div>
-        </div>`;
-      }).join('');
-
-  openModal('custom', `
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title">👥 ${c.name}</div>
-    <div class="field"><label>Phone</label><div style="padding:4px 0">${c.phone}</div></div>
-    <div class="field"><label>Area</label><div style="padding:4px 0">${c.area || '—'}</div></div>
-    <div class="divider"></div>
-    <div class="flex-between" style="margin-bottom:10px">
-      <div style="font-weight:700">🔧 Machines (${machines.length})</div>
-      <button class="btn-success btn-sm" onclick="closeModal();openAddMachineForCustomer('${c.id}','${c.name}')">+ Add Machine</button>
-    </div>
-    ${machineHTML}
-  `);
+function openAddPaymentForCustomer(cid,cname,phone,total,paid){
+  openModal('addPayment');
+  setTimeout(function(){document.getElementById('ap-customerId').value=cid;document.getElementById('ap-custname').value=cname;document.getElementById('ap-phone').value=phone;document.getElementById('ap-total').value=total||0;document.getElementById('ap-paid').value=paid||0;},100);
 }
 
-// ── LOCATION ──
-async function shareLocation() {
-  const statusEl = document.getElementById('locationStatus');
-  if (!navigator.geolocation) { toast('GPS support nahi hai', '#ef4444'); return; }
-  statusEl.textContent = '📍 Location le raha hoon...';
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const { latitude: lat, longitude: lng } = pos.coords;
-    const res = await api({ action: 'logLocation', employeeId: currentUser.id, employeeName: currentUser.name, lat, lng, activity: 'manual update' });
-    if (res.success) {
-      statusEl.textContent = `✅ Location save ho gayi! (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-      statusEl.className = 'text-success';
-      toast('Location save ho gayi! ✅');
-    }
-  }, () => { statusEl.textContent = '❌ Permission do'; statusEl.className = 'text-danger'; });
+async function shareLocation(){
+  var statusEl=document.getElementById('locationStatus');
+  if(!navigator.geolocation){toast('GPS support nahi hai','#ef4444');return;}
+  statusEl.textContent='Location le raha hoon...';
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    var res=await api({action:'logLocation',employeeId:currentUser.id,employeeName:currentUser.name,lat:pos.coords.latitude,lng:pos.coords.longitude,activity:'manual update'});
+    if(res.success){statusEl.textContent='Location save ho gayi! ('+pos.coords.latitude.toFixed(4)+', '+pos.coords.longitude.toFixed(4)+')';statusEl.className='text-success';toast('Location save ho gayi!');}
+  },function(){statusEl.textContent='Permission do';statusEl.className='text-danger';});
 }
 
-// ── AUTOCOMPLETE ──
-function customerAutocomplete(val) {
-  const box = document.getElementById('cc-suggestions');
-  if (!val || val.length < 1) { box.style.display = 'none'; return; }
-  const matches = allCustomers.filter(c => c.name?.toLowerCase().includes(val.toLowerCase())).slice(0, 6);
-  if (matches.length === 0) { box.style.display = 'none'; return; }
-  box.style.display = 'block';
-  box.innerHTML = matches.map(c => `
-    <div onclick="selectCustomerForComplaint('${c.id}','${c.name}','${c.phone}','${c.area||''}')"
-      style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #1e293b;font-size:13px"
-      onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
-      <div style="font-weight:600">${c.name}</div>
-      <div style="color:#64748b;font-size:11px">${c.phone} • ${c.area || '—'}</div>
-    </div>`).join('');
+function custSuggest(val,prefix,suggId,onSelect){
+  var box=document.getElementById(suggId);
+  if(!val){box.style.display='none';return;}
+  var matches=allCustomers.filter(function(c){return c.name&&c.name.toLowerCase().includes(val.toLowerCase());}).slice(0,6);
+  if(!matches.length){box.style.display='none';return;}
+  box.style.display='block';
+  box.innerHTML=matches.map(function(c){return '<div data-cid="'+c.id+'" data-cname="'+c.name+'" data-phone="'+c.phone+'" data-area="'+(c.area||'')+'" data-total="'+(c.totalAmount||0)+'" data-paid="'+(c.paidAmount||0)+'" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #1e293b;font-size:13px" onmouseover="this.style.background=\'#334155\'" onmouseout="this.style.background=\'transparent\'" onclick="'+prefix+'Select(this)"><div style="font-weight:600">'+c.name+'</div><div style="color:#64748b;font-size:11px">'+c.phone+'</div></div>';}).join('');
 }
 
-async function selectCustomerForComplaint(cid, name, phone, area) {
-  document.getElementById('cc-name').value = name;
-  document.getElementById('cc-phone').value = phone;
-  if (area) document.getElementById('cc-area').value = area;
-  document.getElementById('cc-suggestions').style.display = 'none';
-  document.getElementById('cc-customerId').value = cid;
-
-  // Load machines for this customer
-  const mr = await api({ action: 'getMachines', customerId: cid });
-  const machines = mr.success ? mr.data : [];
-  const machineSelect = document.getElementById('cc-machine');
-  machineSelect.innerHTML = '<option value="">— Machine select karo (optional) —</option>' +
-    machines.map(m => `<option value="${m.id}|${m.model}|${m.hooks}|${m.serialNumber}">${m.model} ${m.hooks}H — S/N: ${m.serialNumber || 'N/A'} — ${warrantyLabel(m.warrantyExpiry)}</option>`).join('');
+async function ccSelect(el){
+  var cid=el.dataset.cid,name=el.dataset.cname,phone=el.dataset.phone,area=el.dataset.area;
+  document.getElementById('cc-name').value=name;document.getElementById('cc-phone').value=phone;
+  if(area)document.getElementById('cc-area').value=area;
+  document.getElementById('cc-customerId').value=cid;
+  document.getElementById('cc-suggestions').style.display='none';
+  var mr=await api({action:'getMachines',customerId:cid});var machines=mr.success?mr.data:[];
+  var ms=document.getElementById('cc-machine');
+  ms.innerHTML='<option value="">-- Machine select karo (optional) --</option>'+machines.map(function(m){return '<option value="'+m.id+'|'+m.model+'|'+m.hooks+'|'+(m.serialNumber||'')+'">'+m.model+' '+m.hooks+'H - S/N: '+(m.serialNumber||'N/A')+' - '+warrantyLabel(m.warrantyExpiry)+'</option>';}).join('');
 }
 
-// ── MODALS ──
-function openModal(type, customHTML) {
-  const overlay = document.getElementById('modalOverlay');
-  const content = document.getElementById('modalContent');
+function apSelect(el){
+  document.getElementById('ap-customerId').value=el.dataset.cid;document.getElementById('ap-custname').value=el.dataset.cname;
+  document.getElementById('ap-phone').value=el.dataset.phone;document.getElementById('ap-total').value=el.dataset.total;
+  document.getElementById('ap-paid').value=el.dataset.paid;document.getElementById('ap-suggestions').style.display='none';
+}
+
+function amSelect(el){
+  document.getElementById('am-customerId').value=el.dataset.cid;document.getElementById('am-custname').value=el.dataset.cname;
+  document.getElementById('am-suggestions').style.display='none';
+}
+
+function openModal(type,customHTML){
+  var overlay=document.getElementById('modalOverlay');var content=document.getElementById('modalContent');
   overlay.classList.add('active');
+  if(type==='custom'){content.innerHTML=customHTML;return;}
 
-  if (type === 'custom') { content.innerHTML = customHTML; return; }
-
-  if (type === 'addComplaint') {
-    const engComplaintCount = {};
-    allComplaints.filter(c => c.status !== 'resolved').forEach(c => {
-      if (c.assignedEngineerId) engComplaintCount[c.assignedEngineerId] = (engComplaintCount[c.assignedEngineerId] || 0) + 1;
-    });
-    const engineers = allEmployees.filter(e => e.role === 'engineer');
-    const engOptions = engineers.map(e => {
-      const cnt = engComplaintCount[e.id] || 0;
-      const load = cnt === 0 ? '🟢 Free' : cnt <= 2 ? `🟡 ${cnt} complaints` : `🔴 ${cnt} complaints`;
-      return `<option value="${e.id}|${e.name}">${e.name} — ${load}</option>`;
-    }).join('');
-
-    content.innerHTML = `
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="modal-title">📋 Nai Complaint</div>
-      <input type="hidden" id="cc-customerId">
-      <div class="field">
-        <label>Customer Naam * (type karo)</label>
-        <input id="cc-name" placeholder="Naam type karo..." autocomplete="off" oninput="customerAutocomplete(this.value)">
-        <div id="cc-suggestions" style="background:#0f172a;border:1px solid #334155;border-radius:8px;margin-top:4px;display:none;max-height:160px;overflow-y:auto"></div>
-      </div>
-      <div class="field"><label>Phone</label><input id="cc-phone" type="tel" readonly style="color:#94a3b8" placeholder="Customer select karne pe auto-fill"></div>
-      <div class="field"><label>Area</label><input id="cc-area" placeholder="Jaise: Lanka, Sigra..."></div>
-      <div class="field">
-        <label>Machine Select Karo (customer select karne ke baad)</label>
-        <select id="cc-machine"><option value="">— Pehle customer select karo —</option></select>
-      </div>
-      <div class="field"><label>Problem (Title) *</label><input id="cc-title" placeholder="Jaise: Machine band ho gayi"></div>
-      <div class="field"><label>Description</label><textarea id="cc-desc" placeholder="Puri detail..."></textarea></div>
-      <div class="field"><label>Priority</label>
-        <select id="cc-priority"><option value="normal">Normal</option><option value="high">High 🔴</option><option value="low">Low</option></select>
-      </div>
-      <div class="field"><label>Engineer Assign Karo (optional)</label>
-        <select id="cc-engineer">
-          <option value="">— Baad mein assign karein —</option>
-          ${engOptions}
-        </select>
-      </div>
-      <button class="btn-primary" onclick="submitComplaint()" style="margin-top:8px">✅ Submit Karo</button>
-    `;
+  if(type==='addComplaint'){
+    var engCC={};allComplaints.filter(function(c){return c.status!=='resolved';}).forEach(function(c){if(c.assignedEngineerId)engCC[c.assignedEngineerId]=(engCC[c.assignedEngineerId]||0)+1;});
+    var engs=allEmployees.filter(function(e){return e.role==='engineer';});
+    var engOpts=engs.map(function(e){var cnt=engCC[e.id]||0;return '<option value="'+e.id+'|'+e.name+'">'+e.name+' - '+(cnt===0?'Free':cnt+' complaints')+'</option>';}).join('');
+    content.innerHTML='<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Nai Complaint</div>'+
+      '<input type="hidden" id="cc-customerId">'+
+      '<div class="field"><label>Customer Naam * (type karo)</label><input id="cc-name" placeholder="Naam type karo..." autocomplete="off" oninput="custSuggest(this.value,\'cc\',\'cc-suggestions\')"><div id="cc-suggestions" style="background:#0f172a;border:1px solid #334155;border-radius:8px;margin-top:4px;display:none;max-height:160px;overflow-y:auto"></div></div>'+
+      '<div class="field"><label>Phone</label><input id="cc-phone" type="tel" readonly style="color:#94a3b8" placeholder="Auto-fill hoga"></div>'+
+      '<div class="field"><label>Area</label><input id="cc-area" placeholder="Jaise: Lanka, Sigra..."></div>'+
+      '<div class="field"><label>Machine (customer select karne ke baad)</label><select id="cc-machine"><option value="">-- Pehle customer select karo --</option></select></div>'+
+      '<div class="field"><label>Problem *</label><input id="cc-title" placeholder="Jaise: Machine band ho gayi"></div>'+
+      '<div class="field"><label>Description</label><textarea id="cc-desc" placeholder="Puri detail..."></textarea></div>'+
+      '<div class="field"><label>Priority</label><select id="cc-priority"><option value="normal">Normal</option><option value="high">High</option><option value="low">Low</option></select></div>'+
+      '<div class="field"><label>Engineer (optional)</label><select id="cc-engineer"><option value="">-- Baad mein assign karein --</option>'+engOpts+'</select></div>'+
+      '<button class="btn-primary" onclick="submitComplaint()" style="margin-top:8px">Submit Karo</button>';
   }
 
-  if (type === 'addMachine') {
-    const models = ['Avtar', 'Gear', 'Attachment Jacquard'];
-    const hooks = [528,672,680,864,960,1056,1152,1344,1536,1792,2048,2688,2816,5376];
-    content.innerHTML = `
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="modal-title">🔧 Nai Machine Add Karo</div>
-      <input type="hidden" id="am-customerId">
-      <div class="field">
-        <label>Customer Naam * (type karo)</label>
-        <input id="am-custname" placeholder="Naam type karo..." autocomplete="off" oninput="customerAutocompleteForMachine(this.value)">
-        <div id="am-suggestions" style="background:#0f172a;border:1px solid #334155;border-radius:8px;margin-top:4px;display:none;max-height:160px;overflow-y:auto"></div>
-      </div>
-      <div class="field"><label>Model *</label>
-        <select id="am-model">${models.map(m => `<option>${m}</option>`).join('')}</select>
-      </div>
-      <div class="field"><label>Hooks *</label>
-        <select id="am-hooks">${hooks.map(h => `<option>${h}</option>`).join('')}</select>
-      </div>
-      <div class="field"><label>Serial Number *</label><input id="am-serial" placeholder="Serial number likho"></div>
-      <div class="field"><label>Installation Date *</label><input id="am-install" type="date"></div>
-      <div class="field"><label>Notes</label><input id="am-notes" placeholder="Koi note..."></div>
-      <button class="btn-primary" onclick="submitMachine()" style="margin-top:8px">✅ Machine Add Karo</button>
-    `;
+  if(type==='addPayment'){
+    content.innerHTML='<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Payment Reminder Add Karo</div>'+
+      '<input type="hidden" id="ap-customerId">'+
+      '<div class="field"><label>Customer Naam * (type karo)</label><input id="ap-custname" placeholder="Naam type karo..." autocomplete="off" oninput="custSuggest(this.value,\'ap\',\'ap-suggestions\')"><div id="ap-suggestions" style="background:#0f172a;border:1px solid #334155;border-radius:8px;margin-top:4px;display:none;max-height:140px;overflow-y:auto"></div></div>'+
+      '<div class="field"><label>Phone</label><input id="ap-phone" type="tel" placeholder="Phone"></div>'+
+      '<div class="field"><label>Total Amount (Rs.)</label><input id="ap-total" type="number" placeholder="0"></div>'+
+      '<div class="field"><label>Paid Amount (Rs.)</label><input id="ap-paid" type="number" placeholder="0"></div>'+
+      '<div class="field"><label>Customer Ka Wada (Promise Note)</label><textarea id="ap-promise" placeholder="Jaise: 15 April tak de denge, harvest ke baad..."></textarea></div>'+
+      '<div class="field"><label>Promise Date (kab dene ka kaha)</label><input id="ap-promdate" type="date"></div>'+
+      '<div class="field"><label>Reminder Date (aapko kab yaad dilana hai)</label><input id="ap-reminder" type="date"></div>'+
+      '<button class="btn-primary" onclick="submitPayment()" style="margin-top:8px">Add Karo</button>';
   }
 
-  if (type === 'addEmployee') {
-    content.innerHTML = `
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="modal-title">👷 Naya Employee</div>
-      <div class="field"><label>Naam *</label><input id="ae-name" placeholder="Full naam"></div>
-      <div class="field"><label>Phone * (Login ke liye)</label><input id="ae-phone" type="tel" placeholder="Phone number"></div>
-      <div class="field"><label>Password *</label><input id="ae-pass" type="password" placeholder="Password set karo"></div>
-      <div class="field"><label>Role *</label>
-        <select id="ae-role"><option value="engineer">Engineer</option><option value="manager">Manager</option><option value="admin">Admin</option></select>
-      </div>
-      <div class="field"><label>Area</label><input id="ae-area" placeholder="Jaise: Lanka-Sigra group"></div>
-      <button class="btn-primary" onclick="submitEmployee()" style="margin-top:8px">✅ Add Karo</button>
-    `;
+  if(type==='addMachine'){
+    var models=['Avtar','Gear','Attachment Jacquard'];var hooks=[528,672,680,864,960,1056,1152,1344,1536,1792,2048,2688,2816,5376];
+    content.innerHTML='<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Nai Machine Add Karo</div>'+
+      '<input type="hidden" id="am-customerId">'+
+      '<div class="field"><label>Customer Naam *</label><input id="am-custname" placeholder="Naam type karo..." autocomplete="off" oninput="custSuggest(this.value,\'am\',\'am-suggestions\')"><div id="am-suggestions" style="background:#0f172a;border:1px solid #334155;border-radius:8px;margin-top:4px;display:none;max-height:140px;overflow-y:auto"></div></div>'+
+      '<div class="field"><label>Model *</label><select id="am-model">'+models.map(function(m){return '<option>'+m+'</option>';}).join('')+'</select></div>'+
+      '<div class="field"><label>Hooks *</label><select id="am-hooks">'+hooks.map(function(h){return '<option>'+h+'</option>';}).join('')+'</select></div>'+
+      '<div class="field"><label>Serial Number *</label><input id="am-serial" placeholder="Serial number likho"></div>'+
+      '<div class="field"><label>Installation Date *</label><input id="am-install" type="date"></div>'+
+      '<div class="field"><label>Notes</label><input id="am-notes" placeholder="Koi note..."></div>'+
+      '<button class="btn-primary" onclick="submitMachine()" style="margin-top:8px">Machine Add Karo</button>';
   }
 
-  if (type === 'addCustomer') {
-    content.innerHTML = `
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="modal-title">👥 Naya Customer</div>
-      <div class="field"><label>Naam *</label><input id="ac-name" placeholder="Customer naam"></div>
-      <div class="field"><label>Phone *</label><input id="ac-phone" type="tel" placeholder="Phone"></div>
-      <div class="field"><label>Area</label><input id="ac-area" placeholder="Jaise: Lanka, Sigra..."></div>
-      <div class="field"><label>Total Amount (₹)</label><input id="ac-total" type="number" placeholder="0"></div>
-      <div class="field"><label>Paid Amount (₹)</label><input id="ac-paid" type="number" placeholder="0"></div>
-      <div class="field"><label>Notes</label><input id="ac-notes" placeholder="Koi note..."></div>
-      <button class="btn-primary" onclick="submitCustomer()" style="margin-top:8px">✅ Add Karo</button>
-    `;
+  if(type==='addEmployee'){
+    content.innerHTML='<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Naya Employee</div>'+
+      '<div class="field"><label>Naam *</label><input id="ae-name" placeholder="Full naam"></div>'+
+      '<div class="field"><label>Phone * (Login ke liye)</label><input id="ae-phone" type="tel" placeholder="Phone"></div>'+
+      '<div class="field"><label>Password *</label><input id="ae-pass" type="password" placeholder="Password set karo"></div>'+
+      '<div class="field"><label>Role *</label><select id="ae-role"><option value="engineer">Engineer</option><option value="manager">Manager</option><option value="admin">Admin</option></select></div>'+
+      '<div class="field"><label>Area</label><input id="ae-area" placeholder="Jaise: Lanka-Sigra group"></div>'+
+      '<button class="btn-primary" onclick="submitEmployee()" style="margin-top:8px">Add Karo</button>';
+  }
+
+  if(type==='addCustomer'){
+    content.innerHTML='<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Naya Customer</div>'+
+      '<div class="field"><label>Naam *</label><input id="ac-name" placeholder="Customer naam"></div>'+
+      '<div class="field"><label>Phone *</label><input id="ac-phone" type="tel" placeholder="Phone"></div>'+
+      '<div class="field"><label>Area</label><input id="ac-area" placeholder="Jaise: Lanka, Sigra..."></div>'+
+      '<div class="field"><label>Total Amount (Rs.)</label><input id="ac-total" type="number" placeholder="0"></div>'+
+      '<div class="field"><label>Paid Amount (Rs.)</label><input id="ac-paid" type="number" placeholder="0"></div>'+
+      '<div class="field"><label>Notes</label><input id="ac-notes" placeholder="Koi note..."></div>'+
+      '<button class="btn-primary" onclick="submitCustomer()" style="margin-top:8px">Add Karo</button>';
   }
 }
 
-function openAddMachineForCustomer(cid, cname) {
-  openModal('addMachine');
-  setTimeout(() => {
-    document.getElementById('am-customerId').value = cid;
-    document.getElementById('am-custname').value = cname;
-  }, 100);
-}
+function openAddMachineForCustomer(cid,cname){openModal('addMachine');setTimeout(function(){document.getElementById('am-customerId').value=cid;document.getElementById('am-custname').value=cname;},100);}
 
-function customerAutocompleteForMachine(val) {
-  const box = document.getElementById('am-suggestions');
-  if (!val) { box.style.display = 'none'; return; }
-  const matches = allCustomers.filter(c => c.name?.toLowerCase().includes(val.toLowerCase())).slice(0, 6);
-  if (!matches.length) { box.style.display = 'none'; return; }
-  box.style.display = 'block';
-  box.innerHTML = matches.map(c => `
-    <div onclick="selectCustomerForMachine('${c.id}','${c.name}')"
-      style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #1e293b;font-size:13px"
-      onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
-      <div style="font-weight:600">${c.name}</div>
-      <div style="color:#64748b;font-size:11px">${c.phone}</div>
-    </div>`).join('');
-}
-
-function selectCustomerForMachine(cid, cname) {
-  document.getElementById('am-customerId').value = cid;
-  document.getElementById('am-custname').value = cname;
-  document.getElementById('am-suggestions').style.display = 'none';
-}
-
-function closeModal(e) {
-  if (e && e.target !== document.getElementById('modalOverlay')) return;
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modalOverlay'))return;
   document.getElementById('modalOverlay').classList.remove('active');
 }
 
-async function submitComplaint() {
-  const name = document.getElementById('cc-name').value.trim();
-  const title = document.getElementById('cc-title').value.trim();
-  if (!name || !title) { toast('Naam aur problem zaroori hai!', '#ef4444'); return; }
-  const engVal = document.getElementById('cc-engineer').value;
-  let engId = '', engName = '';
-  if (engVal) [engId, engName] = engVal.split('|');
-  const machineVal = document.getElementById('cc-machine').value;
-  let machineInfo = '';
-  if (machineVal) {
-    const parts = machineVal.split('|');
-    machineInfo = `${parts[1]} ${parts[2]}H — S/N: ${parts[3]}`;
-  }
-  const res = await api({
-    action: 'addComplaint',
-    customerId: document.getElementById('cc-customerId').value,
-    customerName: name,
-    phone: document.getElementById('cc-phone').value,
-    area: document.getElementById('cc-area').value,
-    title, description: document.getElementById('cc-desc').value,
-    priority: document.getElementById('cc-priority').value,
-    assignedEngineerId: engId, assignedEngineerName: engName,
-    notes: machineInfo ? `Machine: ${machineInfo}` : ''
-  });
-  if (res.success) { toast('Complaint add ho gayi! ✅'); closeModal(); loadComplaints(); }
-  else toast('Error: ' + res.error, '#ef4444');
+async function submitComplaint(){
+  var name=document.getElementById('cc-name').value.trim();var title=document.getElementById('cc-title').value.trim();
+  if(!name||!title){toast('Naam aur problem zaroori hai!','#ef4444');return;}
+  var engVal=document.getElementById('cc-engineer').value;var engId='',engName='';
+  if(engVal){var ep=engVal.split('|');engId=ep[0];engName=ep[1];}
+  var mv=document.getElementById('cc-machine').value;var machineInfo='';
+  if(mv){var mp=mv.split('|');machineInfo=mp[1]+' '+mp[2]+'H - S/N: '+mp[3];}
+  var res=await api({action:'addComplaint',customerId:document.getElementById('cc-customerId').value,customerName:name,phone:document.getElementById('cc-phone').value,area:document.getElementById('cc-area').value,title:title,description:document.getElementById('cc-desc').value,priority:document.getElementById('cc-priority').value,assignedEngineerId:engId,assignedEngineerName:engName,notes:machineInfo?'Machine: '+machineInfo:''});
+  if(res.success){toast('Complaint add ho gayi!');closeModal();loadComplaints();}else toast('Error: '+res.error,'#ef4444');
 }
 
-async function submitMachine() {
-  const cid = document.getElementById('am-customerId').value;
-  const cname = document.getElementById('am-custname').value.trim();
-  const serial = document.getElementById('am-serial').value.trim();
-  const install = document.getElementById('am-install').value;
-  if (!cname || !serial || !install) { toast('Customer naam, serial number aur installation date zaroori hai!', '#ef4444'); return; }
-  const res = await api({
-    action: 'addMachine',
-    customerId: cid, customerName: cname,
-    model: document.getElementById('am-model').value,
-    hooks: document.getElementById('am-hooks').value,
-    serialNumber: serial, installationDate: install,
-    notes: document.getElementById('am-notes').value
-  });
-  if (res.success) { toast('Machine add ho gayi! Warranty 1 saal set ho gayi ✅'); closeModal(); loadMachines(); }
-  else toast('Error: ' + res.error, '#ef4444');
+async function submitPayment(){
+  var cname=document.getElementById('ap-custname').value.trim();var total=document.getElementById('ap-total').value;
+  if(!cname||!total){toast('Customer naam aur total amount zaroori hai!','#ef4444');return;}
+  var res=await api({action:'addPayment',customerId:document.getElementById('ap-customerId').value,customerName:cname,phone:document.getElementById('ap-phone').value,totalAmount:total,paidAmount:document.getElementById('ap-paid').value,promiseNote:document.getElementById('ap-promise').value,promiseDate:document.getElementById('ap-promdate').value,reminderDate:document.getElementById('ap-reminder').value});
+  if(res.success){toast('Payment reminder add ho gaya!');closeModal();loadPayments();}else toast('Error: '+res.error,'#ef4444');
 }
 
-async function submitEmployee() {
-  const name = document.getElementById('ae-name').value.trim();
-  const phone = document.getElementById('ae-phone').value.trim();
-  const pass = document.getElementById('ae-pass').value.trim();
-  if (!name || !phone || !pass) { toast('Naam, phone aur password zaroori hai!', '#ef4444'); return; }
-  const res = await api({ action: 'addEmployee', name, phone, password: pass, role: document.getElementById('ae-role').value, area: document.getElementById('ae-area').value });
-  if (res.success) { toast('Employee add ho gaya! ✅'); closeModal(); loadEmployees(); }
-  else toast('Error: ' + res.error, '#ef4444');
+async function submitMachine(){
+  var cname=document.getElementById('am-custname').value.trim();var serial=document.getElementById('am-serial').value.trim();var install=document.getElementById('am-install').value;
+  if(!cname||!serial||!install){toast('Customer naam, serial number aur installation date zaroori hai!','#ef4444');return;}
+  var res=await api({action:'addMachine',customerId:document.getElementById('am-customerId').value,customerName:cname,model:document.getElementById('am-model').value,hooks:document.getElementById('am-hooks').value,serialNumber:serial,installationDate:install,notes:document.getElementById('am-notes').value});
+  if(res.success){toast('Machine add ho gayi! 1 saal warranty set ho gayi.');closeModal();loadMachines();}else toast('Error: '+res.error,'#ef4444');
 }
 
-async function submitCustomer() {
-  const name = document.getElementById('ac-name').value.trim();
-  const phone = document.getElementById('ac-phone').value.trim();
-  if (!name || !phone) { toast('Naam aur phone zaroori hai!', '#ef4444'); return; }
-  const res = await api({ action: 'addCustomer', name, phone, area: document.getElementById('ac-area').value, totalAmount: document.getElementById('ac-total').value, paidAmount: document.getElementById('ac-paid').value, notes: document.getElementById('ac-notes').value, city: 'Varanasi' });
-  if (res.success) { toast('Customer add ho gaya! ✅'); closeModal(); loadCustomers(); }
-  else toast('Error: ' + res.error, '#ef4444');
+async function submitEmployee(){
+  var name=document.getElementById('ae-name').value.trim();var phone=document.getElementById('ae-phone').value.trim();var pass=document.getElementById('ae-pass').value.trim();
+  if(!name||!phone||!pass){toast('Naam, phone aur password zaroori hai!','#ef4444');return;}
+  var res=await api({action:'addEmployee',name:name,phone:phone,password:pass,role:document.getElementById('ae-role').value,area:document.getElementById('ae-area').value});
+  if(res.success){toast('Employee add ho gaya!');closeModal();loadEmployees();}else toast('Error: '+res.error,'#ef4444');
 }
 
-window.onload = () => {
-  const saved = localStorage.getItem('saaz_user');
-  if (saved) { currentUser = JSON.parse(saved); startApp(); }
-};
+async function submitCustomer(){
+  var name=document.getElementById('ac-name').value.trim();var phone=document.getElementById('ac-phone').value.trim();
+  if(!name||!phone){toast('Naam aur phone zaroori hai!','#ef4444');return;}
+  var res=await api({action:'addCustomer',name:name,phone:phone,area:document.getElementById('ac-area').value,totalAmount:document.getElementById('ac-total').value,paidAmount:document.getElementById('ac-paid').value,notes:document.getElementById('ac-notes').value,city:'Varanasi'});
+  if(res.success){toast('Customer add ho gaya!');closeModal();loadCustomers();}else toast('Error: '+res.error,'#ef4444');
+}
+
+window.onload=function(){var saved=localStorage.getItem('saaz_user');if(saved){currentUser=JSON.parse(saved);startApp();}};
 </script>
 </body>
 </html>
