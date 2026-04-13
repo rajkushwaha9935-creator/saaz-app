@@ -581,12 +581,55 @@ async function openCustomerDetail(id){
   var c=allCustomers.find(function(x){return String(x.id)===String(id);});if(!c)return;
   var mr=await api({action:'getMachines',customerId:id});var machines=mr.success?mr.data:[];
   var mHTML=machines.length===0?'<div style="color:#64748b;font-size:13px;padding:8px 0">Koi machine nahi</div>':machines.map(function(m){var ws=warrantyStatus(m.warrantyExpiry);var bc=ws==='ok'?'#22c55e':ws==='soon'?'#f59e0b':'#ef4444';return '<div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid '+bc+'"><div style="font-weight:600;font-size:13px">'+m.model+' - '+m.hooks+' Hooks</div><div style="font-size:11px;color:#60a5fa">S/N: '+(m.serialNumber||'--')+'</div><div style="font-size:11px;color:#94a3b8">'+warrantyLabel(m.warrantyExpiry)+'</div></div>';}).join('');
-  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">'+c.name+'</div>'+
+  var isAdmin=currentUser.role==='admin';
+  var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):0;
+  var amountSection=isAdmin
+    ?'<div class="divider"></div><div style="font-weight:700;margin-bottom:10px;color:#fbbf24">Amount (Sirf Admin)</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
+      '<div style="background:#0f172a;border-radius:8px;padding:10px"><div style="font-size:11px;color:#94a3b8">Total</div><div style="font-weight:700;font-size:15px">Rs.'+parseFloat(c.totalAmount||0).toLocaleString()+'</div></div>'+
+      '<div style="background:#0f172a;border-radius:8px;padding:10px"><div style="font-size:11px;color:#94a3b8">Paid</div><div style="font-weight:700;font-size:15px;color:#4ade80">Rs.'+parseFloat(c.paidAmount||0).toLocaleString()+'</div></div>'+
+      '</div>'+
+      '<div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;color:#94a3b8">Pending</div><div style="font-weight:700;font-size:17px;color:'+(pend>0?'#f87171':'#4ade80')+'">Rs.'+pend.toLocaleString()+(pend<=0?' (Fully Paid)':'')+'</div></div>'
+    :'';
+  var editBtn=isAdmin?'<button class="btn-outline btn-sm" onclick="closeModal();openEditCustomer(\''+c.id+'\')" style="margin-left:8px">Edit</button>':'';
+  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button>'+
+    '<div class="flex-between" style="margin-bottom:14px"><div class="modal-title" style="margin:0">'+c.name+'</div>'+editBtn+'</div>'+
     '<div class="field"><label>Phone</label><div style="padding:4px 0">'+c.phone+'</div></div>'+
     '<div class="field"><label>Area</label><div style="padding:4px 0">'+(c.area||'--')+'</div></div>'+
+    amountSection+
     '<div class="divider"></div><div class="flex-between" style="margin-bottom:10px"><div style="font-weight:700">Machines ('+machines.length+')</div><button class="btn-success btn-sm" onclick="closeModal();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div>'+
-    mHTML+'<div class="divider"></div>'+
+    mHTML+
+    '<div class="divider"></div>'+
     '<button class="btn-warning" style="width:100%" onclick="closeModal();openAddPaymentForCustomer(\''+c.id+'\',\''+c.name+'\',\''+c.phone+'\',\''+c.totalAmount+'\',\''+c.paidAmount+'\')">Payment Reminder Add Karo</button>');
+}
+
+function openEditCustomer(id){
+  var c=allCustomers.find(function(x){return String(x.id)===String(id);});if(!c)return;
+  var isAdmin=currentUser.role==='admin';
+  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button>'+
+    '<div class="modal-title">Customer Edit Karo</div>'+
+    '<div class="field"><label>Naam *</label><input id="ec-name" value="'+c.name+'"></div>'+
+    '<div class="field"><label>Phone *</label><input id="ec-phone" type="tel" value="'+c.phone+'"></div>'+
+    '<div class="field"><label>Area</label><input id="ec-area" value="'+(c.area||'')+'"></div>'+
+    (isAdmin
+      ?'<div class="divider"></div>'+
+        '<div style="font-size:12px;color:#fbbf24;margin-bottom:10px">Amount sirf Admin edit kar sakta hai</div>'+
+        '<div class="field"><label>Total Amount (Rs.)</label><input id="ec-total" type="number" value="'+(c.totalAmount||0)+'"></div>'+
+        '<div class="field"><label>Paid Amount (Rs.)</label><input id="ec-paid" type="number" value="'+(c.paidAmount||0)+'"></div>'
+      :'')+
+    '<div class="field"><label>Notes</label><input id="ec-notes" value="'+(c.notes||'')+'"></div>'+
+    '<button class="btn-primary" onclick="submitEditCustomer(\''+c.id+'\')" style="margin-top:8px">Save Karo</button>');
+}
+
+async function submitEditCustomer(id){
+  var name=document.getElementById('ec-name').value.trim();
+  var phone=document.getElementById('ec-phone').value.trim();
+  if(!name||!phone){toast('Naam aur phone zaroori hai!','#ef4444');return;}
+  var isAdmin=currentUser.role==='admin';
+  var params={action:'updateCustomer',id:id,name:name,phone:phone,area:document.getElementById('ec-area').value,notes:document.getElementById('ec-notes').value};
+  if(isAdmin){params.totalAmount=document.getElementById('ec-total').value;params.paidAmount=document.getElementById('ec-paid').value;}
+  var res=await api(params);
+  if(res.success){toast('Customer update ho gaya!');closeModal();loadCustomers();}else toast('Error: '+res.error,'#ef4444');
 }
 
 function openAddPaymentForCustomer(cid,cname,phone,total,paid){
