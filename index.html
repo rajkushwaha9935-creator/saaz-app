@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SAAZ Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
+.hidden{display:none!important}
+
+/* LOGIN */
+#loginPage{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.login-logo{font-size:48px;margin-bottom:8px}
+.login-brand{font-size:11px;color:#60a5fa;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px}
+.login-title{font-size:24px;font-weight:800;margin-bottom:32px;color:#fff}
+.login-card{background:#1e293b;border-radius:16px;padding:24px;width:100%;max-width:360px}
+.login-card h3{font-size:16px;margin-bottom:20px;color:#e2e8f0}
+.field{margin-bottom:14px}
+.field label{font-size:11px;color:#94a3b8;display:block;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px;font-family:inherit}
+.field textarea{resize:vertical;min-height:80px}
+.btn-primary{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:4px}
+.btn-success{background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-danger{background:#dc2626;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
+.btn-outline{background:transparent;color:#60a5fa;border:1px solid #334155;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
+.btn-warning{background:#d97706;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:8px}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:14px 14px 0;border-bottom:1px solid #1e40af33;position:sticky;top:0;z-index:100}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.header-info{font-size:10px;color:#60a5fa;letter-spacing:2px;font-weight:700;text-transform:uppercase}
+.header-name{font-size:17px;font-weight:800}
+.header-role{font-size:11px;color:#94a3b8;margin-top:1px}
+.logout-btn{background:#1e293b;border:none;color:#94a3b8;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
+.nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:0}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:0 0 auto;padding:8px 12px;border-radius:10px 10px 0 0;border:none;background:transparent;color:#94a3b8;font-weight:600;font-size:11px;cursor:pointer;white-space:nowrap}
+.nav-btn.active{background:#0f172a;color:#60a5fa;border-bottom:2px solid #2563eb}
+
+/* PAGES */
+.page{padding:14px;padding-bottom:80px;display:none}
+.page.active{display:block}
+.page-title{font-size:16px;font-weight:800;margin-bottom:14px;color:#e2e8f0}
+
+/* CARDS */
+.card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.card-title{font-weight:700;font-size:14px}
+.card-sub{font-size:11px;color:#64748b;margin-top:2px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:#1e293b;border-radius:12px;padding:14px}
+.stat-icon{font-size:20px;margin-bottom:4px}
+.stat-val{font-size:26px;font-weight:800}
+.stat-label{font-size:10px;color:#94a3b8;margin-top:2px}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-open{background:#7f1d1d;color:#fca5a5}
+.badge-inprogress{background:#78350f;color:#fcd34d}
+.badge-resolved{background:#14532d;color:#86efac}
+.badge-admin{background:#4c1d95;color:#c4b5fd}
+.badge-manager{background:#1e3a5f;color:#93c5fd}
+.badge-engineer{background:#14532d;color:#86efac}
+
+/* COMPLAINT CARD */
+.complaint-card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid #334155;cursor:pointer}
+.complaint-card.open{border-left-color:#ef4444}
+.complaint-card.inprogress{border-left-color:#f59e0b}
+.complaint-card.resolved{border-left-color:#22c55e}
+
+/* ATTENDANCE */
+.att-card{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:14px;text-align:center}
+.att-time{font-size:36px;font-weight:800;color:#60a5fa;margin:8px 0}
+.att-label{font-size:12px;color:#94a3b8}
+.att-btns{display:flex;gap:10px;justify-content:center;margin-top:14px}
+
+/* EMPLOYEE CARD */
+.emp-card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+
+/* TOAST */
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#fff;padding:10px 20px;border-radius:30px;z-index:9999;font-weight:700;font-size:13px;display:none;white-space:nowrap;max-width:90vw;text-align:center}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:#000a;z-index:500;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#1e293b;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:16px}
+.modal-close{float:right;background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;margin-top:-4px}
+
+/* LOADING */
+.loading{text-align:center;padding:40px;color:#64748b}
+.spinner{font-size:32px;animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.divider{height:1px;background:#334155;margin:12px 0}
+.text-muted{color:#64748b;font-size:12px}
+.text-danger{color:#f87171}
+.text-success{color:#4ade80}
+.text-warning{color:#fbbf24}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+.flex{display:flex}
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.gap-8{gap:8px}
+.search-inp{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #334155;background:#1e293b;color:#f1f5f9;font-size:14px;margin-bottom:12px}
+.empty{text-align:center;padding:40px;color:#64748b;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="login-logo">🏭</div>
+  <div class="login-brand">SAAZ Electronic</div>
+  <div class="login-title">Management System</div>
+  <div class="login-card">
+    <h3>🔐 Login Karo</h3>
+    <div class="field"><label>Phone Number</label><input type="tel" id="loginPhone" placeholder="9999999999"></div>
+    <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="Password"></div>
+    <button class="btn-primary" onclick="doLogin()">Login →</button>
+    <div id="loginError" class="text-danger mt-8" style="font-size:13px;text-align:center"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="hidden">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-info">SAAZ Electronic • Varanasi</div>
+        <div class="header-name" id="headerName">—</div>
+        <div class="header-role" id="headerRole">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    <div class="nav" id="navBar"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page" id="page-dashboard">
+    <div class="page-title">📊 Dashboard</div>
+    <div class="stats-grid" id="dashStats"></div>
+    <div class="page-title" style="font-size:14px">🔴 Open Complaints</div>
+    <div id="dashComplaints"></div>
+  </div>
+
+  <!-- COMPLAINTS -->
+  <div class="page" id="page-complaints">
+    <div class="flex-between" style="margin-bottom:14px">
+      <div class="page-title" style="margin:0">📋 Complaints</div>
+      <button class="btn-success btn-sm" onclick="openModal('addComplaint')" id="addComplaintBtn">+ Add</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
+      <button class="btn-outline btn-sm" onclick="filterComplaints('all')" id="f-all" style="background:#334155;color:#fff">All</button>
+      <button class="btn-outline btn-sm" onclick="filterComplaints('open')" id="f-open">Open</button>
+      <button class="btn-outline btn-sm" onclick="filterComplaints('inprogress')" id="f-inprogress">In Progress</button>
+      <button class="btn-outline btn-sm" onclick="filterComplaints('resolved')" id="f-resolved">Resolved</button>
+    </div>
+    <div id="complaintsList"></div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div class="page" id="page-attendance">
+    <div class="page-title">⏰ Attendance</div>
+    <div class="att-card" id="attCard">
+      <div class="att-label">Aaj ki Date</div>
+      <div class="att-time" id="attClock">--:--:--</div>
+      <div id="attStatus" class="text-muted">Loading...</div>
+      <div class="att-btns">
+        <button class="btn-success" id="btnCheckIn" onclick="doCheckIn()">✅ Check In</button>
+        <button class="btn-danger" id="btnCheckOut" onclick="doCheckOut()" style="display:none">🚪 Check Out</button>
+      </div>
+    </div>
+    <div class="page-title" style="font-size:14px">📅 Attendance History</div>
+    <div id="attHistory"></div>
+  </div>
+
+  <!-- EMPLOYEES (Admin/Manager) -->
+  <div class="page" id="page-employees">
+    <div class="flex-between" style="margin-bottom:14px">
+      <div class="page-title" style="margin:0">👷 Employees</div>
+      <button class="btn-success btn-sm" onclick="openModal('addEmployee')">+ Add</button>
+    </div>
+    <input class="search-inp" placeholder="🔍 Search..." oninput="searchEmployees(this.value)" id="empSearch">
+    <div id="employeesList"></div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="page" id="page-customers">
+    <div class="flex-between" style="margin-bottom:14px">
+      <div class="page-title" style="margin:0">👥 Customers</div>
+      <button class="btn-success btn-sm" onclick="openModal('addCustomer')">+ Add</button>
+    </div>
+    <input class="search-inp" placeholder="🔍 Search..." oninput="searchCustomers(this.value)">
+    <div id="customersList"></div>
+  </div>
+
+  <!-- LOCATION (Engineer) -->
+  <div class="page" id="page-location">
+    <div class="page-title">📍 Location Update</div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Apni location share karo</div>
+      <div id="locationStatus" class="text-muted" style="margin-bottom:12px;font-size:13px">—</div>
+      <button class="btn-primary" onclick="shareLocation()">📍 Location Share Karo</button>
+    </div>
+    <div class="page-title" style="font-size:14px;margin-top:8px">📋 Aaj ki Location History</div>
+    <div id="locationHistory"></div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzmZ6xyh8oh_AIyta9OaTPASWCDc5XGjcaQqTqVMNmvnJ2WB2MTixkm-PSKTZ7IDMkrSQ/exec';
+let currentUser = null;
+let allComplaints = [];
+let allEmployees = [];
+let allCustomers = [];
+let currentFilter = 'all';
+let attCheckedIn = false;
+let clockInterval = null;
+
+// ── API ──
+async function api(params) {
+  const url = API + '?' + new URLSearchParams(params);
+  try {
+    const r = await fetch(url);
+    return await r.json();
+  } catch(e) {
+    return { success: false, error: 'Network error' };
+  }
+}
+
+// ── TOAST ──
+function toast(msg, color='#22c55e') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = color; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const phone = document.getElementById('loginPhone').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  if (!phone || !pass) { document.getElementById('loginError').textContent = 'Phone aur password daalo'; return; }
+  document.getElementById('loginError').textContent = 'Login ho raha hai...';
+  const res = await api({ action: 'login', phone, password: pass });
+  if (res.success) {
+    currentUser = res.user;
+    localStorage.setItem('saaz_user', JSON.stringify(currentUser));
+    startApp();
+  } else {
+    document.getElementById('loginError').textContent = res.error || 'Login failed';
+  }
+}
+
+function logout() {
+  if (!confirm('Logout karna hai?')) return;
+  currentUser = null;
+  localStorage.removeItem('saaz_user');
+  clearInterval(clockInterval);
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('loginPhone').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+// ── START APP ──
+function startApp() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  document.getElementById('headerName').textContent = currentUser.name;
+  document.getElementById('headerRole').textContent = getRoleLabel(currentUser.role);
+  buildNav();
+  showPage(getDefaultPage());
+  startClock();
+}
+
+function getRoleLabel(role) {
+  return role === 'admin' ? '👑 Admin' : role === 'manager' ? '👔 Manager' : '👷 Engineer';
+}
+
+function getDefaultPage() {
+  return currentUser.role === 'engineer' ? 'attendance' : 'dashboard';
+}
+
+function buildNav() {
+  const role = currentUser.role;
+  let tabs = [];
+  if (role === 'admin' || role === 'manager') {
+    tabs = [
+      {id:'dashboard', label:'📊 Home'},
+      {id:'complaints', label:'📋 Complaints'},
+      {id:'employees', label:'👷 Team'},
+      {id:'customers', label:'👥 Customers'},
+    ];
+  } else {
+    tabs = [
+      {id:'attendance', label:'⏰ Attendance'},
+      {id:'complaints', label:'📋 Complaints'},
+      {id:'location', label:'📍 Location'},
+    ];
+  }
+  document.getElementById('navBar').innerHTML = tabs.map(t =>
+    `<button class="nav-btn" id="nav-${t.id}" onclick="showPage('${t.id}')">${t.label}</button>`
+  ).join('');
+
+  // Show/hide add complaint for engineers
+  if (role === 'engineer') {
+    setTimeout(() => {
+      const btn = document.getElementById('addComplaintBtn');
+      if (btn) btn.style.display = 'none';
+    }, 100);
+  }
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  const nav = document.getElementById('nav-' + id);
+  if (page) page.classList.add('active');
+  if (nav) nav.classList.add('active');
+  loadPage(id);
+}
+
+async function loadPage(id) {
+  if (id === 'dashboard') loadDashboard();
+  else if (id === 'complaints') { await ensureEmployees(); loadComplaints(); }
+  else if (id === 'attendance') loadAttendance();
+  else if (id === 'employees') loadEmployees();
+  else if (id === 'customers') loadCustomers();
+  else if (id === 'location') loadLocationHistory();
+}
+
+async function ensureEmployees() {
+  if (allEmployees.length === 0) {
+    const res = await api({ action: 'getEmployees' });
+    allEmployees = res.success ? res.data : [];
+  }
+}
+
+// ── CLOCK ──
+function startClock() {
+  clearInterval(clockInterval);
+  clockInterval = setInterval(() => {
+    const el = document.getElementById('attClock');
+    if (el) el.textContent = new Date().toLocaleTimeString('en-IN');
+  }, 1000);
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  const el = document.getElementById('dashStats');
+  el.innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
+  const [cr, er] = await Promise.all([
+    api({ action: 'getComplaints' }),
+    api({ action: 'getEmployees' })
+  ]);
+  allComplaints = cr.success ? cr.data : [];
+  allEmployees = er.success ? er.data : [];
+  const open = allComplaints.filter(c => c.status === 'open').length;
+  const inprog = allComplaints.filter(c => c.status === 'inprogress').length;
+  const resolved = allComplaints.filter(c => c.status === 'resolved').length;
+  const engineers = allEmployees.filter(e => e.role === 'engineer').length;
+  el.innerHTML = `
+    <div class="stat-card" style="border-left:3px solid #ef4444"><div class="stat-icon">🔴</div><div class="stat-val" style="color:#ef4444">${open}</div><div class="stat-label">Open Complaints</div></div>
+    <div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-icon">🟡</div><div class="stat-val" style="color:#f59e0b">${inprog}</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-card" style="border-left:3px solid #22c55e"><div class="stat-icon">✅</div><div class="stat-val" style="color:#22c55e">${resolved}</div><div class="stat-label">Resolved</div></div>
+    <div class="stat-card" style="border-left:3px solid #3b82f6"><div class="stat-icon">👷</div><div class="stat-val" style="color:#3b82f6">${engineers}</div><div class="stat-label">Engineers</div></div>
+  `;
+  const openList = allComplaints.filter(c => c.status === 'open').slice(0, 5);
+  document.getElementById('dashComplaints').innerHTML = openList.length === 0
+    ? '<div class="empty">Koi open complaint nahi 🎉</div>'
+    : openList.map(c => complaintCardHTML(c)).join('');
+}
+
+// ── COMPLAINTS ──
+async function loadComplaints() {
+  const el = document.getElementById('complaintsList');
+  el.innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
+  const params = { action: 'getComplaints' };
+  if (currentUser.role === 'engineer') params.engineerId = currentUser.id;
+  const res = await api(params);
+  allComplaints = res.success ? res.data : [];
+  renderComplaints();
+}
+
+function filterComplaints(f) {
+  currentFilter = f;
+  document.querySelectorAll('[id^="f-"]').forEach(b => {
+    b.style.background = 'transparent'; b.style.color = '#60a5fa';
+  });
+  const btn = document.getElementById('f-' + f);
+  if (btn) { btn.style.background = '#334155'; btn.style.color = '#fff'; }
+  renderComplaints();
+}
+
+function renderComplaints() {
+  const filtered = currentFilter === 'all' ? allComplaints : allComplaints.filter(c => c.status === currentFilter);
+  const el = document.getElementById('complaintsList');
+  el.innerHTML = filtered.length === 0
+    ? '<div class="empty">Koi complaint nahi</div>'
+    : filtered.map(c => complaintCardHTML(c)).join('');
+}
+
+function complaintCardHTML(c) {
+  const statusLabel = c.status === 'open' ? '🔴 Open' : c.status === 'inprogress' ? '🟡 In Progress' : '✅ Resolved';
+  const priorityColor = c.priority === 'high' ? '#ef4444' : c.priority === 'normal' ? '#f59e0b' : '#94a3b8';
+  return `<div class="complaint-card ${c.status}" onclick="openComplaintDetail('${c.id}')">
+    <div class="flex-between">
+      <div style="font-weight:700;font-size:14px">${c.title || 'Complaint'}</div>
+      <span class="badge badge-${c.status === 'inprogress' ? 'inprogress' : c.status}">${statusLabel}</span>
+    </div>
+    <div class="text-muted mt-8">${c.customerName} • ${c.phone}</div>
+    <div class="text-muted">${c.area || '—'} • ${c.assignedEngineerName || 'Unassigned'}</div>
+    <div style="font-size:11px;color:${priorityColor};margin-top:4px">Priority: ${c.priority || 'normal'}</div>
+  </div>`;
+}
+
+function openComplaintDetail(id) {
+  const c = allComplaints.find(x => String(x.id) === String(id));
+  if (!c) return;
+  const isAdminManager = currentUser.role !== 'engineer';
+  let assignSection = '';
+  if (isAdminManager) {
+    const engineers = allEmployees.filter(e => e.role === 'engineer');
+    assignSection = `
+      <div class="divider"></div>
+      <div style="font-weight:700;margin-bottom:8px">👷 Engineer Assign Karo</div>
+      <select id="assignEng" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px;margin-bottom:8px">
+        <option value="">Select Engineer</option>
+        ${engineers.map(e => `<option value="${e.id}|${e.name}" ${String(e.id) === String(c.assignedEngineerId) ? 'selected' : ''}>${e.name} - ${e.area || 'All'}</option>`).join('')}
+      </select>
+      <button class="btn-warning btn-sm" onclick="assignEngineer('${c.id}')">✅ Assign Karo</button>
+    `;
+  }
+  let statusSection = `
+    <div class="divider"></div>
+    <div style="font-weight:700;margin-bottom:10px">🔄 Status Update Karo</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${c.status !== 'inprogress' ? `<button class="btn-warning btn-sm" onclick="updateStatus('${c.id}','inprogress')">🟡 In Progress</button>` : '<span style="color:#fbbf24;font-size:13px">🟡 Already In Progress</span>'}
+      ${c.status !== 'resolved' ? `<button class="btn-success btn-sm" onclick="updateStatus('${c.id}','resolved')">✅ Resolved</button>` : '<span style="color:#4ade80;font-size:13px">✅ Already Resolved</span>'}
+      ${c.status !== 'open' && isAdminManager ? `<button class="btn-outline btn-sm" onclick="updateStatus('${c.id}','open')">🔴 Reopen</button>` : ''}
+    </div>
+  `;
+  openModal('custom', `
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">📋 Complaint Detail</div>
+    <div class="field"><label>Customer</label><div style="padding:8px 0;font-weight:600">${c.customerName}</div></div>
+    <div class="field"><label>Phone</label><div style="padding:4px 0">${c.phone}</div></div>
+    <div class="field"><label>Area</label><div style="padding:4px 0">${c.area || '—'}</div></div>
+    <div class="field"><label>Problem</label><div style="padding:4px 0">${c.title}</div></div>
+    <div class="field"><label>Description</label><div style="padding:4px 0;font-size:13px;color:#94a3b8">${c.description || '—'}</div></div>
+    <div class="field"><label>Assigned To</label><div style="padding:4px 0">${c.assignedEngineerName || 'Unassigned'}</div></div>
+    <div class="field"><label>Status</label><span class="badge badge-${c.status === 'inprogress' ? 'inprogress' : c.status}">${c.status}</span></div>
+    ${assignSection}
+    ${statusSection}
+  `);
+}
+
+async function assignEngineer(complaintId) {
+  const val = document.getElementById('assignEng').value;
+  if (!val) { toast('Engineer select karo!', '#ef4444'); return; }
+  const [engId, engName] = val.split('|');
+  const res = await api({ action: 'updateComplaint', id: complaintId, assignedEngineerId: engId, assignedEngineerName: engName });
+  if (res.success) { toast('Engineer assign ho gaya! ✅'); closeModal(); loadComplaints(); }
+  else toast('Error: ' + res.error, '#ef4444');
+}
+
+async function updateStatus(complaintId, status) {
+  const res = await api({ action: 'updateComplaint', id: complaintId, status });
+  if (res.success) { toast('Status update ho gaya! ✅'); closeModal(); loadComplaints(); }
+  else toast('Error: ' + res.error, '#ef4444');
+}
+
+// ── ATTENDANCE ──
+async function loadAttendance() {
+  const res = await api({ action: 'getAttendance', employeeId: currentUser.id });
+  const records = res.success ? res.data : [];
+  const today = new Date().toDateString();
+  const todayRec = records.find(r => new Date(r.date).toDateString() === today);
+  attCheckedIn = !!todayRec;
+  const hasCheckOut = todayRec && todayRec.checkOut;
+  const statusEl = document.getElementById('attStatus');
+  const btnIn = document.getElementById('btnCheckIn');
+  const btnOut = document.getElementById('btnCheckOut');
+
+  if (!todayRec) {
+    statusEl.textContent = 'Aaj check-in nahi hua';
+    statusEl.className = 'text-danger';
+    btnIn.style.display = 'block';
+    btnOut.style.display = 'none';
+  } else if (!hasCheckOut) {
+    const inTime = new Date(todayRec.checkIn).toLocaleTimeString('en-IN');
+    statusEl.textContent = `✅ Check-in: ${inTime}`;
+    statusEl.className = 'text-success';
+    btnIn.style.display = 'none';
+    btnOut.style.display = 'block';
+  } else {
+    const inTime = new Date(todayRec.checkIn).toLocaleTimeString('en-IN');
+    const outTime = new Date(todayRec.checkOut).toLocaleTimeString('en-IN');
+    const ot = parseFloat(todayRec.otHours) > 0 ? ` | OT: ${todayRec.otHours} hrs` : '';
+    statusEl.innerHTML = `✅ In: ${inTime} | Out: ${outTime}${ot}`;
+    statusEl.className = 'text-success';
+    btnIn.style.display = 'none';
+    btnOut.style.display = 'none';
+  }
+
+  const histEl = document.getElementById('attHistory');
+  histEl.innerHTML = records.slice(0, 10).map(r => {
+    const d = new Date(r.date).toLocaleDateString('en-IN', {day:'2-digit',month:'short'});
+    const inT = r.checkIn ? new Date(r.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
+    const outT = r.checkOut ? new Date(r.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—';
+    const ot = parseFloat(r.otHours) > 0 ? `<span class="text-warning"> +${r.otHours}h OT</span>` : '';
+    return `<div class="card" style="margin-bottom:8px">
+      <div class="flex-between">
+        <div><div style="font-weight:700">${d}</div><div class="text-muted">In: ${inT} | Out: ${outT}${ot}</div></div>
+        <span class="badge badge-${r.status === 'present' ? 'resolved' : 'open'}">${r.status}</span>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty">Koi record nahi</div>';
+}
+
+async function doCheckIn() {
+  const res = await api({ action: 'checkIn', employeeId: currentUser.id, employeeName: currentUser.name });
+  if (res.success) { toast('Check-in ho gaya! ✅'); loadAttendance(); }
+  else toast(res.error || 'Error', '#ef4444');
+}
+
+async function doCheckOut() {
+  const res = await api({ action: 'checkOut', employeeId: currentUser.id });
+  if (res.success) {
+    const ot = parseFloat(res.otHours) > 0 ? ` OT: ${res.otHours} hours` : '';
+    toast(`Check-out ho gaya!${ot} ✅`);
+    loadAttendance();
+  } else toast(res.error || 'Error', '#ef4444');
+}
+
+// ── EMPLOYEES ──
+async function loadEmployees() {
+  const el = document.getElementById('employeesList');
+  el.innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
+  const res = await api({ action: 'getEmployees' });
+  allEmployees = res.success ? res.data : [];
+  renderEmployees(allEmployees);
+}
+
+function renderEmployees(list) {
+  document.getElementById('employeesList').innerHTML = list.length === 0
+    ? '<div class="empty">Koi employee nahi</div>'
+    : list.map(e => `
+      <div class="emp-card">
+        <div>
+          <div style="font-weight:700">${e.name}</div>
+          <div class="text-muted">${e.phone} • ${e.area || 'All'}</div>
+        </div>
+        <span class="badge badge-${e.role}">${e.role}</span>
+      </div>
+    `).join('');
+}
+
+function searchEmployees(q) {
+  const filtered = allEmployees.filter(e =>
+    e.name?.toLowerCase().includes(q.toLowerCase()) ||
+    e.phone?.includes(q) || e.area?.toLowerCase().includes(q.toLowerCase())
+  );
+  renderEmployees(filtered);
+}
+
+// ── CUSTOMERS ──
+async function loadCustomers() {
+  const el = document.getElementById('customersList');
+  el.innerHTML = '<div class="loading"><div class="spinner">⚙️</div></div>';
+  const res = await api({ action: 'getCustomers' });
+  allCustomers = res.success ? res.data : [];
+  renderCustomers(allCustomers);
+}
+
+function renderCustomers(list) {
+  document.getElementById('customersList').innerHTML = list.length === 0
+    ? '<div class="empty">Koi customer nahi</div>'
+    : list.map(c => {
+        const pend = c.totalAmount ? parseFloat(c.totalAmount) - parseFloat(c.paidAmount || 0) : null;
+        return `<div class="card" style="margin-bottom:10px;border-left:3px solid ${pend > 0 ? '#ef4444' : '#22c55e'}">
+          <div class="flex-between">
+            <div>
+              <div style="font-weight:700">${c.name}</div>
+              <div class="text-muted">${c.phone} • ${c.area || '—'} • ${c.machine || '—'}</div>
+              ${pend > 0 ? `<div class="text-danger" style="font-size:12px;margin-top:2px">₹${parseFloat(pend).toLocaleString()} pending</div>` : '<div class="text-success" style="font-size:12px;margin-top:2px">Fully Paid ✅</div>'}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+}
+
+function searchCustomers(q) {
+  const filtered = allCustomers.filter(c =>
+    c.name?.toLowerCase().includes(q.toLowerCase()) ||
+    c.phone?.includes(q) || c.area?.toLowerCase().includes(q.toLowerCase())
+  );
+  renderCustomers(filtered);
+}
+
+// ── LOCATION ──
+async function shareLocation() {
+  const statusEl = document.getElementById('locationStatus');
+  if (!navigator.geolocation) { toast('GPS support nahi hai', '#ef4444'); return; }
+  statusEl.textContent = '📍 Location le raha hoon...';
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lng } = pos.coords;
+    const res = await api({
+      action: 'logLocation',
+      employeeId: currentUser.id,
+      employeeName: currentUser.name,
+      lat, lng,
+      activity: 'manual update'
+    });
+    if (res.success) {
+      statusEl.textContent = `✅ Location share ho gayi! (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      statusEl.className = 'text-success';
+      toast('Location save ho gayi! ✅');
+      loadLocationHistory();
+    }
+  }, err => {
+    statusEl.textContent = '❌ Location nahi mili — permission do';
+    statusEl.className = 'text-danger';
+    toast('Location permission do!', '#ef4444');
+  });
+}
+
+async function loadLocationHistory() {
+  const res = await api({ action: 'getAttendance', employeeId: currentUser.id });
+  document.getElementById('locationHistory').innerHTML = '<div class="empty">Aaj location update karo 👆</div>';
+}
+
+// ── CUSTOMER AUTOCOMPLETE ──
+function customerAutocomplete(val) {
+  const box = document.getElementById('cc-suggestions');
+  if (!val || val.length < 1) { box.style.display = 'none'; return; }
+  const matches = allCustomers.filter(c =>
+    c.name?.toLowerCase().includes(val.toLowerCase())
+  ).slice(0, 6);
+  if (matches.length === 0) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = matches.map(c => `
+    <div onclick="selectCustomer('${c.name}','${c.phone}','${c.area||''}')"
+      style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #1e293b;font-size:13px"
+      onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+      <div style="font-weight:600">${c.name}</div>
+      <div style="color:#64748b;font-size:11px">${c.phone} • ${c.area||'—'} • ${c.machine||'—'}</div>
+    </div>
+  `).join('');
+}
+
+function selectCustomer(name, phone, area) {
+  document.getElementById('cc-name').value = name;
+  document.getElementById('cc-phone').value = phone;
+  if (area) document.getElementById('cc-area').value = area;
+  document.getElementById('cc-suggestions').style.display = 'none';
+}
+
+
+function openModal(type, customHTML) {
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  overlay.classList.add('active');
+
+  if (type === 'custom') {
+    content.innerHTML = customHTML;
+    return;
+  }
+
+  if (type === 'addComplaint') {
+    // Engineer complaint count
+    const engComplaintCount = {};
+    allComplaints.filter(c => c.status !== 'resolved').forEach(c => {
+      if (c.assignedEngineerId) {
+        engComplaintCount[c.assignedEngineerId] = (engComplaintCount[c.assignedEngineerId] || 0) + 1;
+      }
+    });
+    const engineers = allEmployees.filter(e => e.role === 'engineer');
+    const engOptions = engineers.map(e => {
+      const cnt = engComplaintCount[e.id] || 0;
+      const load = cnt === 0 ? '🟢 Free' : cnt <= 2 ? `🟡 ${cnt} complaints` : `🔴 ${cnt} complaints`;
+      return `<option value="${e.id}|${e.name}">${e.name} — ${load}</option>`;
+    }).join('');
+
+    content.innerHTML = `
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-title">📋 Nai Complaint</div>
+      <div class="field">
+        <label>Customer Naam * (type karo — list dikhega)</label>
+        <input id="cc-name" placeholder="Naam type karo..." autocomplete="off" oninput="customerAutocomplete(this.value)">
+        <div id="cc-suggestions" style="background:#0f172a;border:1px solid #334155;border-radius:8px;margin-top:4px;display:none;max-height:160px;overflow-y:auto"></div>
+      </div>
+      <div class="field">
+        <label>Phone</label>
+        <input id="cc-phone" type="tel" placeholder="Auto-fill hoga customer select karne pe" readonly style="color:#94a3b8">
+      </div>
+      <div class="field">
+        <label>Area (manually likho)</label>
+        <input id="cc-area" placeholder="Jaise: Lanka, Sigra, Cantt...">
+      </div>
+      <div class="field">
+        <label>Problem (Title) *</label>
+        <input id="cc-title" placeholder="Jaise: Machine band ho gayi">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="cc-desc" placeholder="Puri detail..."></textarea>
+      </div>
+      <div class="field">
+        <label>Priority</label>
+        <select id="cc-priority"><option value="normal">Normal</option><option value="high">High 🔴</option><option value="low">Low</option></select>
+      </div>
+      <div class="field">
+        <label>Engineer Assign Karo (optional)</label>
+        <select id="cc-engineer">
+          <option value="">— Baad mein assign karein —</option>
+          ${engOptions}
+        </select>
+      </div>
+      <button class="btn-primary" onclick="submitComplaint()" style="margin-top:8px">✅ Submit Karo</button>
+    `;
+  }
+
+  if (type === 'addEmployee') {
+    content.innerHTML = `
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-title">👷 Naya Employee</div>
+      <div class="field"><label>Naam *</label><input id="ae-name" placeholder="Full naam"></div>
+      <div class="field"><label>Phone * (Login ke liye)</label><input id="ae-phone" type="tel" placeholder="Phone number"></div>
+      <div class="field"><label>Password *</label><input id="ae-pass" type="password" placeholder="Password set karo"></div>
+      <div class="field"><label>Role *</label>
+        <select id="ae-role"><option value="engineer">Engineer</option><option value="manager">Manager</option><option value="admin">Admin</option></select>
+      </div>
+      <div class="field"><label>Area (manually likho)</label><input id="ae-area" placeholder="Jaise: Lanka-Sigra group"></div>
+      <button class="btn-primary" onclick="submitEmployee()" style="margin-top:8px">✅ Add Karo</button>
+    `;
+  }
+
+  if (type === 'addCustomer') {
+    content.innerHTML = `
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-title">👥 Naya Customer</div>
+      <div class="field"><label>Naam *</label><input id="ac-name" placeholder="Customer naam"></div>
+      <div class="field"><label>Phone *</label><input id="ac-phone" type="tel" placeholder="Phone"></div>
+      <div class="field"><label>Area (manually likho)</label><input id="ac-area" placeholder="Jaise: Lanka, Sigra..."></div>
+      <div class="field"><label>Machine</label>
+        <select id="ac-machine"><option value="">Select</option><option>RAI6</option><option>RAI7</option><option>RAI5</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Total Amount (₹)</label><input id="ac-total" type="number" placeholder="0"></div>
+      <div class="field"><label>Paid Amount (₹)</label><input id="ac-paid" type="number" placeholder="0"></div>
+      <div class="field"><label>Purchase Date</label><input id="ac-purchase" type="date"></div>
+      <div class="field"><label>EMI Due Date</label><input id="ac-emi" type="date"></div>
+      <div class="field"><label>Notes</label><input id="ac-notes" placeholder="Koi note..."></div>
+      <button class="btn-primary" onclick="submitCustomer()" style="margin-top:8px">✅ Add Karo</button>
+    `;
+  }
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+async function submitComplaint() {
+  const name = document.getElementById('cc-name').value.trim();
+  const phone = document.getElementById('cc-phone').value.trim();
+  const title = document.getElementById('cc-title').value.trim();
+  if (!name || !title) { toast('Naam aur problem zaroori hai!', '#ef4444'); return; }
+  const engVal = document.getElementById('cc-engineer').value;
+  let engId = '', engName = '';
+  if (engVal) { [engId, engName] = engVal.split('|'); }
+  const res = await api({
+    action: 'addComplaint',
+    customerName: name, phone,
+    area: document.getElementById('cc-area').value,
+    title,
+    description: document.getElementById('cc-desc').value,
+    priority: document.getElementById('cc-priority').value,
+    assignedEngineerId: engId,
+    assignedEngineerName: engName
+  });
+  if (res.success) { toast('Complaint add ho gayi! ✅'); closeModal(); loadComplaints(); }
+  else toast('Error: ' + res.error, '#ef4444');
+}
+
+async function submitEmployee() {
+  const name = document.getElementById('ae-name').value.trim();
+  const phone = document.getElementById('ae-phone').value.trim();
+  const pass = document.getElementById('ae-pass').value.trim();
+  if (!name || !phone || !pass) { toast('Naam, phone aur password zaroori hai!', '#ef4444'); return; }
+  const res = await api({
+    action: 'addEmployee',
+    name, phone, password: pass,
+    role: document.getElementById('ae-role').value,
+    area: document.getElementById('ae-area').value
+  });
+  if (res.success) { toast('Employee add ho gaya! ✅'); closeModal(); loadEmployees(); }
+  else toast('Error: ' + res.error, '#ef4444');
+}
+
+async function submitCustomer() {
+  const name = document.getElementById('ac-name').value.trim();
+  const phone = document.getElementById('ac-phone').value.trim();
+  if (!name || !phone) { toast('Naam aur phone zaroori hai!', '#ef4444'); return; }
+  const res = await api({
+    action: 'addCustomer',
+    name, phone,
+    area: document.getElementById('ac-area').value,
+    machine: document.getElementById('ac-machine').value,
+    totalAmount: document.getElementById('ac-total').value,
+    paidAmount: document.getElementById('ac-paid').value,
+    purchaseDate: document.getElementById('ac-purchase').value,
+    emiDue: document.getElementById('ac-emi').value,
+    notes: document.getElementById('ac-notes').value,
+    city: 'Varanasi'
+  });
+  if (res.success) { toast('Customer add ho gaya! ✅'); closeModal(); loadCustomers(); }
+  else toast('Error: ' + res.error, '#ef4444');
+}
+
+// ── INIT ──
+window.onload = () => {
+  const saved = localStorage.getItem('saaz_user');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    startApp();
+  }
+};
+</script>
+</body>
+</html>
