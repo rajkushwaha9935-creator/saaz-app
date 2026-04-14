@@ -152,7 +152,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
       <button class="btn-outline btn-sm" onclick="filterPayments('today')" id="pf-today">Aaj</button>
       <button class="btn-outline btn-sm" onclick="filterPayments('overdue')" id="pf-overdue">Overdue</button>
       <button class="btn-outline btn-sm" onclick="filterPayments('pending')" id="pf-pending">Pending</button>
-      <button class="btn-outline btn-sm" onclick="filterPayments('paid')" id="pf-paid">Paid</button>
+      
     </div>
     <div id="paymentsList"></div>
   </div>
@@ -424,7 +424,22 @@ async function updateStatus(cid,status){
 
 async function loadPayments(){
   document.getElementById('paymentsList').innerHTML='<div class="loading">Loading...</div>';
-  var res=await api({action:'getPayments'});allPayments=res.success?res.data:[];filterPayments(currentPaymentFilter);
+  var res=await api({action:'getPayments'});
+  // Paid records list mein nahi dikhenge — sirf active records
+  allPayments=res.success?res.data.filter(function(p){return p.status!=='paid';}):[];
+  filterPayments(currentPaymentFilter);
+}
+
+function sortPayments(list){
+  var order={today:0,overdue:1,pending:2,paid:3};
+  return list.slice().sort(function(a,b){
+    var sa=order[getPaymentStatus(a)];var sb=order[getPaymentStatus(b)];
+    if(sa!==sb)return sa-sb;
+    // same status: sort by date ascending (jo pehle aa raha hai wo upar)
+    var da=Math.min(a.reminderDate?daysFromToday(a.reminderDate):999,a.promiseDate?daysFromToday(a.promiseDate):999);
+    var db=Math.min(b.reminderDate?daysFromToday(b.reminderDate):999,b.promiseDate?daysFromToday(b.promiseDate):999);
+    return da-db;
+  });
 }
 
 function filterPayments(f){
@@ -436,7 +451,7 @@ function filterPayments(f){
   else if(f==='today')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='today';});
   else if(f==='overdue')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='overdue';});
   else if(f==='pending')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='pending';});
-  renderPayments(filtered);
+  renderPayments(sortPayments(filtered));
 }
 
 function renderPayments(list){
@@ -567,7 +582,8 @@ async function loadCustomers(){
   var res=await api({action:'getCustomers'});allCustomers=res.success?res.data:[];renderCustomers(allCustomers);
 }
 function renderCustomers(list){
-  document.getElementById('customersList').innerHTML=list.length===0?'<div class="empty">Koi customer nahi</div>':list.map(function(c){
+  var sorted=list.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
+  document.getElementById('customersList').innerHTML=sorted.length===0?'<div class="empty">Koi customer nahi</div>':sorted.map(function(c){
     var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):null;
     return '<div class="card" style="border-left:3px solid '+(pend>0?'#ef4444':'#22c55e')+';cursor:pointer" onclick="openCustomerDetail(\''+c.id+'\')">'+
       '<div class="flex-between"><div><div style="font-weight:700">'+c.name+'</div><div class="text-muted">'+c.phone+' - '+(c.area||'--')+'</div>'+
@@ -575,7 +591,14 @@ function renderCustomers(list){
       '</div><button class="btn-outline btn-sm" onclick="event.stopPropagation();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div></div>';
   }).join('');
 }
-function searchCustomers(q){renderCustomers(allCustomers.filter(function(c){return(c.name&&c.name.toLowerCase().includes(q.toLowerCase()))||(c.phone&&c.phone.includes(q));}));}
+function searchCustomers(q){
+  if(!q){renderCustomers(allCustomers);return;}
+  var q2=q.toLowerCase();
+  var startsWith=allCustomers.filter(function(c){return c.name&&c.name.toLowerCase().startsWith(q2);});
+  var contains=allCustomers.filter(function(c){return c.name&&!c.name.toLowerCase().startsWith(q2)&&c.name.toLowerCase().includes(q2);});
+  var phoneMatch=allCustomers.filter(function(c){return c.phone&&c.phone.includes(q)&&!(c.name&&c.name.toLowerCase().includes(q2));});
+  renderCustomers(startsWith.concat(contains).concat(phoneMatch));
+}
 
 async function openCustomerDetail(id){
   var c=allCustomers.find(function(x){return String(x.id)===String(id);});if(!c)return;
