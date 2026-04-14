@@ -408,7 +408,7 @@ function complaintCardHTML(c){
     '</div>';
 }
 
-function openComplaintDetail(id){
+async function openComplaintDetail(id){
   var c=allComplaints.find(function(x){return String(x.id)===String(id);});if(!c)return;
   var isAM=currentUser.role!=='engineer';
   var assignSection='';
@@ -417,8 +417,22 @@ function openComplaintDetail(id){
     var engOpts=engs.map(function(e){return '<option value="'+e.id+'|'+e.name+'"'+(String(e.id)===String(c.assignedEngineerId)?' selected':'')+'>'+e.name+' - '+(e.area||'All')+'</option>';}).join('');
     assignSection='<div class="divider"></div><div style="font-weight:700;margin-bottom:8px">Assign Engineer</div>'+
       '<select id="assignEng" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px;margin-bottom:8px"><option value="">Select Engineer</option>'+engOpts+'</select>'+
-      '<button class="btn-warning btn-sm" onclick="assignEngineer(\''+c.id+'\')">Assign Karo</button>';
+      '<button class="btn-warning btn-sm" onclick="assignEngineer(''+c.id+'')">Assign Karo</button>';
   }
+  // Load complaint history
+  var hr=await api({action:'getComplaintHistory',complaintId:id});
+  var history=hr.success?hr.data:[];
+  var historyHTML=history.length===0
+    ?'<div style="color:#64748b;font-size:13px;padding:8px 0">Abhi koi entry nahi</div>'
+    :history.map(function(h){
+        return '<div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #60a5fa">'+
+          '<div class="flex-between">'+
+          '<span style="font-size:11px;color:#64748b">'+fmt(h.date)+'</span>'+
+          '<span style="font-size:11px;color:#64748b">By: '+h.addedBy+'</span></div>'+
+          '<div style="font-weight:700;font-size:13px;color:#f87171;margin-top:4px">Problem: '+h.problem+'</div>'+
+          (h.solution?'<div style="font-size:13px;color:#4ade80;margin-top:4px">Solution: '+h.solution+'</div>':'')+
+          '</div>';
+      }).join('');
   openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Complaint Detail</div>'+
     '<div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:600">'+c.customerName+'</div></div>'+
     '<div class="field"><label>Phone</label><div style="padding:4px 0">'+(c.phone||'--')+'</div></div>'+
@@ -427,12 +441,22 @@ function openComplaintDetail(id){
     '<div class="field"><label>Problem</label><div style="padding:4px 0;font-weight:600">'+c.title+'</div></div>'+
     '<div class="field"><label>Description</label><div style="padding:4px 0;font-size:13px;color:#94a3b8">'+(c.description||'--')+'</div></div>'+
     '<div class="field"><label>Assigned To</label><div style="padding:4px 0">'+(c.assignedEngineerName||'Unassigned')+'</div></div>'+
-    assignSection+'<div class="divider"></div><div style="font-weight:700;margin-bottom:10px">Status Update</div>'+
+    assignSection+
+    '<div class="divider"></div><div style="font-weight:700;margin-bottom:10px">Status Update</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-    (c.status!=='inprogress'?'<button class="btn-warning btn-sm" onclick="updateStatus(\''+c.id+'\',\'inprogress\')">In Progress</button>':'<span style="color:#fbbf24;font-size:12px">Already In Progress</span>')+
-    (c.status!=='resolved'?'<button class="btn-success btn-sm" onclick="updateStatus(\''+c.id+'\',\'resolved\')">Resolved</button>':'<span style="color:#4ade80;font-size:12px">Already Resolved</span>')+
-    (c.status!=='open'&&isAM?'<button class="btn-outline btn-sm" onclick="updateStatus(\''+c.id+'\',\'open\')">Reopen</button>':'')+
-    '</div>');
+    (c.status!=='inprogress'?'<button class="btn-warning btn-sm" onclick="updateStatus(''+c.id+'','inprogress')">In Progress</button>':'<span style="color:#fbbf24;font-size:12px">Already In Progress</span>')+
+    (c.status!=='resolved'?'<button class="btn-success btn-sm" onclick="updateStatus(''+c.id+'','resolved')">Resolved</button>':'<span style="color:#4ade80;font-size:12px">Already Resolved</span>')+
+    (c.status!=='open'&&isAM?'<button class="btn-outline btn-sm" onclick="updateStatus(''+c.id+'','open')">Reopen</button>':'')+
+    '</div>'+
+    '<div class="divider"></div>'+
+    '<div class="flex-between" style="margin-bottom:10px"><div style="font-weight:700">Service History ('+history.length+')</div></div>'+
+    historyHTML+
+    '<div class="divider"></div>'+
+    '<div style="font-weight:700;margin-bottom:10px;color:#60a5fa">Nai History Entry</div>'+
+    '<div class="field"><label>Kya Problem Thi? *</label><input id="ch-problem" placeholder="Jaise: Motor jam ho gayi, card break hua..."></div>'+
+    '<div class="field"><label>Solution Kya Tha?</label><textarea id="ch-solution" placeholder="Jaise: Motor replace ki, Card no. 5 badla, Software update kiya..." style="min-height:70px"></textarea></div>'+
+    '<button class="btn-warning" onclick="submitComplaintHistory(''+c.id+'',''+c.customerId+'',''+c.customerName+'',''+c.notes+'')">History Save Karo</button>'
+  );
 }
 
 async function assignEngineer(cid){
@@ -497,11 +521,26 @@ function paymentCardHTML(p){
     '</div>';
 }
 
-function openPaymentDetail(id){
+async function openPaymentDetail(id){
   var p=allPayments.find(function(x){return String(x.id)===String(id);});if(!p)return;
   var pending=parseFloat(p.pendingAmount||0);
   var rdVal=p.reminderDate?new Date(p.reminderDate).toISOString().split('T')[0]:'';
   var pdVal=p.promiseDate?new Date(p.promiseDate).toISOString().split('T')[0]:'';
+  var isAM=currentUser.role!=='engineer';
+  // Load history
+  var hr=await api({action:'getPaymentHistory',paymentId:id});
+  var history=hr.success?hr.data:[];
+  var historyHTML=history.length===0
+    ?'<div style="color:#64748b;font-size:13px;padding:8px 0">Abhi koi entry nahi</div>'
+    :history.map(function(h){
+        var actionColor=h.action==='Payment Kiya'?'#4ade80':h.action==='Phone Nahi Uthaya'?'#f87171':h.action==='Naya Wada'?'#fbbf24':'#94a3b8';
+        return '<div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid '+actionColor+'">'+
+          '<div class="flex-between"><span style="font-weight:700;font-size:12px;color:'+actionColor+'">'+h.action+'</span>'+
+          '<span style="font-size:11px;color:#64748b">'+fmt(h.date)+'</span></div>'+
+          (h.note?'<div style="font-size:13px;color:#e2e8f0;margin-top:4px">'+h.note+'</div>':'')+
+          '<div style="font-size:11px;color:#64748b;margin-top:2px">By: '+h.addedBy+'</div></div>';
+      }).join('');
+  var actionOpts=['Payment Kiya','Partial Payment','Naya Wada','Phone Nahi Uthaya','Busy Bataya','Phone Band Tha','Milne Aaya','Koi Aur Wajah'];
   openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Payment Detail</div>'+
     '<div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:700">'+p.customerName+'</div></div>'+
     '<div class="field"><label>Phone</label><div style="padding:4px 0">'+(p.phone||'--')+'</div></div>'+
@@ -511,13 +550,29 @@ function openPaymentDetail(id){
     '<div class="field"><label>Customer Ka Wada</label><div style="padding:4px 0;color:#fbbf24">'+(p.promiseNote||'--')+'</div></div>'+
     '<div class="field"><label>Promise Date</label><div style="padding:4px 0">'+fmt(p.promiseDate)+'</div></div>'+
     '<div class="field"><label>Reminder Date</label><div style="padding:4px 0">'+fmt(p.reminderDate)+'</div></div>'+
-    '<div class="divider"></div><div style="font-weight:700;margin-bottom:10px">Update Karo</div>'+
-    '<div class="field"><label>Naya Paid Amount (Rs.)</label><input id="upd-paid" type="number" value="'+(p.paidAmount||0)+'"></div>'+
-    '<div class="field"><label>Naya Reminder Date</label><input id="upd-reminder" type="date" value="'+rdVal+'"></div>'+
-    '<div class="field"><label>Customer Ka Naya Wada</label><input id="upd-promise" placeholder="Kya bola..." value="'+(p.promiseNote||'')+'"></div>'+
-    '<div class="field"><label>Naya Promise Date</label><input id="upd-promdate" type="date" value="'+pdVal+'"></div>'+
-    '<button class="btn-primary" onclick="updatePaymentRecord(\''+p.id+'\')">Update Karo</button>'+
-    (p.status!=='paid'?'<button class="btn-success" style="margin-top:8px;width:100%" onclick="markPaid(\''+p.id+'\',\''+p.totalAmount+'\')">Fully Paid Mark Karo</button>':''));
+    (isAM?
+      '<div class="divider"></div><div style="font-weight:700;margin-bottom:10px">Update Karo</div>'+
+      '<div class="field"><label>Naya Paid Amount (Rs.)</label><input id="upd-paid" type="number" value="'+(p.paidAmount||0)+'"></div>'+
+      '<div class="field"><label>Naya Reminder Date</label><input id="upd-reminder" type="date" value="'+rdVal+'"></div>'+
+      '<div class="field"><label>Customer Ka Naya Wada</label><input id="upd-promise" placeholder="Kya bola..." value="'+(p.promiseNote||'')+'"></div>'+
+      '<div class="field"><label>Naya Promise Date</label><input id="upd-promdate" type="date" value="'+pdVal+'"></div>'+
+      '<button class="btn-primary" onclick="updatePaymentRecord(''+p.id+'')">Update Karo</button>'+
+      (p.status!=='paid'?'<button class="btn-success" style="margin-top:8px;width:100%" onclick="markPaid(''+p.id+'',''+p.totalAmount+'')">Fully Paid Mark Karo</button>':'')
+    :'')+
+    '<div class="divider"></div>'+
+    '<div class="flex-between" style="margin-bottom:10px"><div style="font-weight:700">Activity History ('+history.length+')</div></div>'+
+    historyHTML+
+    (isAM?
+      '<div class="divider"></div>'+
+      '<div style="font-weight:700;margin-bottom:10px;color:#60a5fa">Aaj Ki Entry Add Karo</div>'+
+      '<div class="field"><label>Customer Ne Kya Kiya?</label>'+
+      '<select id="ph-action" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px">'+
+      actionOpts.map(function(a){return '<option>'+a+'</option>';}).join('')+
+      '</select></div>'+
+      '<div class="field"><label>Note (optional)</label><textarea id="ph-note" placeholder="Detail likhो jaise: Rs.5000 diye, kal baki denge..." style="min-height:60px"></textarea></div>'+
+      '<button class="btn-warning" onclick="submitPaymentHistory(''+p.id+'',''+p.customerId+'',''+p.customerName+'')">Entry Save Karo</button>'
+    :'')
+  );
 }
 
 async function updatePaymentRecord(id){
@@ -859,6 +914,24 @@ async function submitCustomer(){
   if(!name||!phone){toast('Naam aur phone zaroori hai!','#ef4444');return;}
   var res=await api({action:'addCustomer',name:name,phone:phone,area:document.getElementById('ac-area').value,totalAmount:document.getElementById('ac-total').value,paidAmount:document.getElementById('ac-paid').value,notes:document.getElementById('ac-notes').value,city:'Varanasi'});
   if(res.success){toast('Customer add ho gaya!');closeModal();invalidateCache('customers');loadCustomers(true);}else toast('Error: '+res.error,'#ef4444');
+}
+
+async function submitPaymentHistory(paymentId,customerId,customerName){
+  var action=document.getElementById('ph-action').value;
+  var note=document.getElementById('ph-note').value.trim();
+  if(!action){toast('Action select karo!','#ef4444');return;}
+  var res=await api({action:'addPaymentHistory',paymentId:paymentId,customerId:customerId,customerName:customerName,action:action,note:note,addedBy:currentUser.name});
+  if(res.success){toast('Entry save ho gayi!');closeModal();invalidateCache('payments');}
+  else toast('Error: '+res.error,'#ef4444');
+}
+
+async function submitComplaintHistory(complaintId,customerId,customerName,machineInfo){
+  var problem=document.getElementById('ch-problem').value.trim();
+  var solution=document.getElementById('ch-solution').value.trim();
+  if(!problem){toast('Problem likhna zaroori hai!','#ef4444');return;}
+  var res=await api({action:'addComplaintHistory',complaintId:complaintId,customerId:customerId,customerName:customerName,machineInfo:machineInfo,problem:problem,solution:solution,addedBy:currentUser.name});
+  if(res.success){toast('History save ho gayi!');closeModal();invalidateCache('complaints');}
+  else toast('Error: '+res.error,'#ef4444');
 }
 
 function refreshPage(page){
