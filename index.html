@@ -132,7 +132,10 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
   <div class="page" id="page-complaints">
     <div class="flex-between" style="margin-bottom:14px">
       <div class="page-title" style="margin:0">Complaints</div>
-      <button class="btn-success btn-sm" onclick="openModal('addComplaint')" id="addComplaintBtn">+ Add</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn-outline btn-sm" onclick="refreshPage('complaints')" title="Refresh">↻</button>
+        <button class="btn-success btn-sm" onclick="openModal('addComplaint')" id="addComplaintBtn">+ Add</button>
+      </div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
       <button class="btn-outline btn-sm" onclick="filterComplaints('all')" id="f-all" style="background:#334155;color:#fff">All</button>
@@ -145,7 +148,10 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
   <div class="page" id="page-payments">
     <div class="flex-between" style="margin-bottom:14px">
       <div class="page-title" style="margin:0">Payment Reminders</div>
-      <button class="btn-success btn-sm" onclick="openModal('addPayment')">+ Add</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn-outline btn-sm" onclick="refreshPage('payments')" title="Refresh">↻</button>
+        <button class="btn-success btn-sm" onclick="openModal('addPayment')">+ Add</button>
+      </div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
       <button class="btn-outline btn-sm" onclick="filterPayments('all')" id="pf-all" style="background:#334155;color:#fff">All</button>
@@ -159,7 +165,10 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
   <div class="page" id="page-machines">
     <div class="flex-between" style="margin-bottom:14px">
       <div class="page-title" style="margin:0">Machines</div>
-      <button class="btn-success btn-sm" onclick="openModal('addMachine')">+ Add</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn-outline btn-sm" onclick="refreshPage('machines')" title="Refresh">↻</button>
+        <button class="btn-success btn-sm" onclick="openModal('addMachine')">+ Add</button>
+      </div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">
       <button class="btn-outline btn-sm" onclick="filterMachines('all')" id="mf-all" style="background:#334155;color:#fff">All</button>
@@ -195,7 +204,10 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
   <div class="page" id="page-customers">
     <div class="flex-between" style="margin-bottom:14px">
       <div class="page-title" style="margin:0">Customers</div>
-      <button class="btn-success btn-sm" onclick="openModal('addCustomer')">+ Add</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn-outline btn-sm" onclick="refreshPage('customers')" title="Refresh">↻</button>
+        <button class="btn-success btn-sm" onclick="openModal('addCustomer')">+ Add</button>
+      </div>
     </div>
     <input class="search-inp" placeholder="Search naam, phone..." oninput="searchCustomers(this.value)">
     <div id="customersList"></div>
@@ -219,6 +231,11 @@ var currentUser=null;
 var allComplaints=[],allEmployees=[],allCustomers=[],allMachines=[],allMachineTypes=[],allPayments=[];
 var currentFilter='all',currentMachineFilter='all',currentPaymentFilter='all';
 var clockInterval=null;
+// Cache timestamps
+var cacheTime={complaints:0,employees:0,customers:0,machines:0,payments:0,machineTypes:0};
+var CACHE_MS=5*60*1000; // 5 minutes cache
+function isCacheValid(key){return allComplaints.length>0&&(Date.now()-cacheTime[key])<CACHE_MS;}
+function invalidateCache(key){if(key)cacheTime[key]=0;else Object.keys(cacheTime).forEach(function(k){cacheTime[k]=0;});}
 
 async function api(params){
   var url=API+'?'+new URLSearchParams(params);
@@ -354,11 +371,14 @@ async function loadDashboard(){
   document.getElementById('dashComplaints').innerHTML=openList.length===0?'<div class="empty">Koi open complaint nahi</div>':openList.map(function(c){return complaintCardHTML(c);}).join('');
 }
 
-async function loadComplaints(){
+async function loadComplaints(force){
+  if(!force&&cacheTime.complaints&&(Date.now()-cacheTime.complaints)<CACHE_MS&&allComplaints.length){renderComplaints();return;}
   document.getElementById('complaintsList').innerHTML='<div class="loading">Loading...</div>';
   var params={action:'getComplaints'};
   if(currentUser.role==='engineer')params.engineerId=currentUser.id;
-  var res=await api(params);allComplaints=res.success?res.data:[];renderComplaints();
+  var res=await api(params);
+  if(res.success){allComplaints=res.data;cacheTime.complaints=Date.now();}
+  renderComplaints();
 }
 
 function filterComplaints(f){
@@ -419,14 +439,14 @@ async function assignEngineer(cid){
 
 async function updateStatus(cid,status){
   var res=await api({action:'updateComplaint',id:cid,status:status});
-  if(res.success){toast('Status update ho gaya!');closeModal();loadComplaints();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Status update ho gaya!');closeModal();invalidateCache('complaints');loadComplaints(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
-async function loadPayments(){
+async function loadPayments(force){
+  if(!force&&cacheTime.payments&&(Date.now()-cacheTime.payments)<CACHE_MS&&allPayments.length){filterPayments(currentPaymentFilter);return;}
   document.getElementById('paymentsList').innerHTML='<div class="loading">Loading...</div>';
   var res=await api({action:'getPayments'});
-  // Paid records list mein nahi dikhenge — sirf active records
-  allPayments=res.success?res.data.filter(function(p){return p.status!=='paid';}):[];
+  if(res.success){allPayments=res.data.filter(function(p){return p.status!=='paid';});cacheTime.payments=Date.now();}
   filterPayments(currentPaymentFilter);
 }
 
@@ -497,18 +517,21 @@ function openPaymentDetail(id){
 
 async function updatePaymentRecord(id){
   var res=await api({action:'updatePayment',id:id,paidAmount:document.getElementById('upd-paid').value,reminderDate:document.getElementById('upd-reminder').value,promiseNote:document.getElementById('upd-promise').value,promiseDate:document.getElementById('upd-promdate').value});
-  if(res.success){toast('Update ho gaya!');closeModal();loadPayments();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Update ho gaya!');closeModal();invalidateCache('payments');loadPayments(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
 async function markPaid(id,total){
   var res=await api({action:'updatePayment',id:id,paidAmount:total,status:'paid'});
-  if(res.success){toast('Fully paid mark ho gaya!');closeModal();loadPayments();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Fully paid mark ho gaya!');closeModal();invalidateCache('payments');loadPayments(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
-async function loadMachines(){
+async function loadMachines(force){
+  if(!force&&cacheTime.machines&&(Date.now()-cacheTime.machines)<CACHE_MS&&allMachines.length){renderMachines(allMachines);return;}
   document.getElementById('machinesList').innerHTML='<div class="loading">Loading...</div>';
   var mr=await api({action:'getMachines'});var mtr=await api({action:'getMachineTypes'});
-  allMachines=mr.success?mr.data:[];allMachineTypes=mtr.success?mtr.data:[];renderMachines(allMachines);
+  if(mr.success){allMachines=mr.data;cacheTime.machines=Date.now();}
+  if(mtr.success){allMachineTypes=mtr.data;cacheTime.machineTypes=Date.now();}
+  renderMachines(allMachines);
 }
 
 function filterMachines(f){
@@ -570,16 +593,22 @@ async function loadAttendance(){
 async function doCheckIn(){var res=await api({action:'checkIn',employeeId:currentUser.id,employeeName:currentUser.name});if(res.success){toast('Check-in ho gaya!');loadAttendance();}else toast(res.error||'Error','#ef4444');}
 async function doCheckOut(){var res=await api({action:'checkOut',employeeId:currentUser.id});if(res.success){var ot=parseFloat(res.otHours)>0?' OT: '+res.otHours+'h':'';toast('Check-out ho gaya!'+ot);loadAttendance();}else toast(res.error||'Error','#ef4444');}
 
-async function loadEmployees(){
+async function loadEmployees(force){
+  if(!force&&cacheTime.employees&&(Date.now()-cacheTime.employees)<CACHE_MS&&allEmployees.length){renderEmployees(allEmployees);return;}
   document.getElementById('employeesList').innerHTML='<div class="loading">Loading...</div>';
-  var res=await api({action:'getEmployees'});allEmployees=res.success?res.data:[];renderEmployees(allEmployees);
+  var res=await api({action:'getEmployees'});
+  if(res.success){allEmployees=res.data;cacheTime.employees=Date.now();}
+  renderEmployees(allEmployees);
 }
 function renderEmployees(list){document.getElementById('employeesList').innerHTML=list.length===0?'<div class="empty">Koi employee nahi</div>':list.map(function(e){return '<div class="emp-card"><div><div style="font-weight:700">'+e.name+'</div><div class="text-muted">'+e.phone+' - '+(e.area||'All')+'</div></div><span class="badge badge-'+e.role+'">'+e.role+'</span></div>';}).join('');}
 function searchEmployees(q){renderEmployees(allEmployees.filter(function(e){return(e.name&&e.name.toLowerCase().includes(q.toLowerCase()))||(e.phone&&e.phone.includes(q));}));}
 
-async function loadCustomers(){
+async function loadCustomers(force){
+  if(!force&&cacheTime.customers&&(Date.now()-cacheTime.customers)<CACHE_MS&&allCustomers.length){renderCustomers(allCustomers);return;}
   document.getElementById('customersList').innerHTML='<div class="loading">Loading...</div>';
-  var res=await api({action:'getCustomers'});allCustomers=res.success?res.data:[];renderCustomers(allCustomers);
+  var res=await api({action:'getCustomers'});
+  if(res.success){allCustomers=res.data;cacheTime.customers=Date.now();}
+  renderCustomers(allCustomers);
 }
 function renderCustomers(list){
   var sorted=list.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
@@ -597,7 +626,17 @@ function searchCustomers(q){
   var startsWith=allCustomers.filter(function(c){return c.name&&c.name.toLowerCase().startsWith(q2);});
   var contains=allCustomers.filter(function(c){return c.name&&!c.name.toLowerCase().startsWith(q2)&&c.name.toLowerCase().includes(q2);});
   var phoneMatch=allCustomers.filter(function(c){return c.phone&&c.phone.includes(q)&&!(c.name&&c.name.toLowerCase().includes(q2));});
-  renderCustomers(startsWith.concat(contains).concat(phoneMatch));
+  var result=startsWith.concat(contains).concat(phoneMatch);
+  // Direct render without re-sorting so startsWith stays on top
+  var el=document.getElementById('customersList');
+  if(!result.length){el.innerHTML='<div class="empty">Koi customer nahi</div>';return;}
+  el.innerHTML=result.map(function(c){
+    var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):null;
+    return '<div class="card" style="border-left:3px solid '+(pend>0?'#ef4444':'#22c55e')+';cursor:pointer" onclick="openCustomerDetail(\''+c.id+'\')">'+
+      '<div class="flex-between"><div><div style="font-weight:700">'+c.name+'</div><div class="text-muted">'+c.phone+' - '+(c.area||'--')+'</div>'+
+      (pend>0?'<div class="text-danger" style="font-size:12px;margin-top:2px">Rs.'+parseFloat(pend).toLocaleString()+' pending</div>':'<div class="text-success" style="font-size:12px;margin-top:2px">Fully Paid</div>')+
+      '</div><button class="btn-outline btn-sm" onclick="event.stopPropagation();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div></div>';
+  }).join('');
 }
 
 async function openCustomerDetail(id){
@@ -652,7 +691,7 @@ async function submitEditCustomer(id){
   var params={action:'updateCustomer',id:id,name:name,phone:phone,area:document.getElementById('ec-area').value,notes:document.getElementById('ec-notes').value};
   if(isAdmin){params.totalAmount=document.getElementById('ec-total').value;params.paidAmount=document.getElementById('ec-paid').value;}
   var res=await api(params);
-  if(res.success){toast('Customer update ho gaya!');closeModal();loadCustomers();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Customer update ho gaya!');closeModal();invalidateCache('customers');loadCustomers(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
 function openAddPaymentForCustomer(cid,cname,phone,total,paid){
@@ -786,21 +825,21 @@ async function submitComplaint(){
   var mv=document.getElementById('cc-machine').value;var machineInfo='';
   if(mv){var mp=mv.split('|');machineInfo=mp[1]+' '+mp[2]+'H - S/N: '+mp[3];}
   var res=await api({action:'addComplaint',customerId:document.getElementById('cc-customerId').value,customerName:name,phone:document.getElementById('cc-phone').value,area:document.getElementById('cc-area').value,title:title,description:document.getElementById('cc-desc').value,priority:document.getElementById('cc-priority').value,assignedEngineerId:engId,assignedEngineerName:engName,notes:machineInfo?'Machine: '+machineInfo:''});
-  if(res.success){toast('Complaint add ho gayi!');closeModal();loadComplaints();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Complaint add ho gayi!');closeModal();invalidateCache('complaints');loadComplaints(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
 async function submitPayment(){
   var cname=document.getElementById('ap-custname').value.trim();var total=document.getElementById('ap-total').value;
   if(!cname||!total){toast('Customer naam aur total amount zaroori hai!','#ef4444');return;}
   var res=await api({action:'addPayment',customerId:document.getElementById('ap-customerId').value,customerName:cname,phone:document.getElementById('ap-phone').value,totalAmount:total,paidAmount:document.getElementById('ap-paid').value,promiseNote:document.getElementById('ap-promise').value,promiseDate:document.getElementById('ap-promdate').value,reminderDate:document.getElementById('ap-reminder').value});
-  if(res.success){toast('Payment reminder add ho gaya!');closeModal();loadPayments();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Payment reminder add ho gaya!');closeModal();invalidateCache('payments');loadPayments(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
 async function submitMachine(){
   var cname=document.getElementById('am-custname').value.trim();var serial=document.getElementById('am-serial').value.trim();var install=document.getElementById('am-install').value;
   if(!cname||!serial||!install){toast('Customer naam, serial number aur installation date zaroori hai!','#ef4444');return;}
   var res=await api({action:'addMachine',customerId:document.getElementById('am-customerId').value,customerName:cname,model:document.getElementById('am-model').value,hooks:document.getElementById('am-hooks').value,serialNumber:serial,installationDate:install,notes:document.getElementById('am-notes').value});
-  if(res.success){toast('Machine add ho gayi! 1 saal warranty set ho gayi.');closeModal();loadMachines();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Machine add ho gayi! 1 saal warranty set ho gayi.');closeModal();invalidateCache('machines');loadMachines(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
 async function submitEmployee(){
@@ -814,7 +853,17 @@ async function submitCustomer(){
   var name=document.getElementById('ac-name').value.trim();var phone=document.getElementById('ac-phone').value.trim();
   if(!name||!phone){toast('Naam aur phone zaroori hai!','#ef4444');return;}
   var res=await api({action:'addCustomer',name:name,phone:phone,area:document.getElementById('ac-area').value,totalAmount:document.getElementById('ac-total').value,paidAmount:document.getElementById('ac-paid').value,notes:document.getElementById('ac-notes').value,city:'Varanasi'});
-  if(res.success){toast('Customer add ho gaya!');closeModal();loadCustomers();}else toast('Error: '+res.error,'#ef4444');
+  if(res.success){toast('Customer add ho gaya!');closeModal();invalidateCache('customers');loadCustomers(true);}else toast('Error: '+res.error,'#ef4444');
+}
+
+function refreshPage(page){
+  invalidateCache(page);
+  if(page==='complaints')loadComplaints(true);
+  else if(page==='payments')loadPayments(true);
+  else if(page==='machines')loadMachines(true);
+  else if(page==='customers')loadCustomers(true);
+  else if(page==='employees')loadEmployees(true);
+  toast('Refresh ho raha hai...','#2563eb');
 }
 
 window.onload=function(){var saved=localStorage.getItem('saaz_user');if(saved){currentUser=JSON.parse(saved);startApp();}};
