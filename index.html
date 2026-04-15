@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v3.1">
+<meta name="version" content="v3.2">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -714,27 +714,30 @@ function renderCustomers(list,skipSort){
     :display.map(function(c){return customerCardHTML(c);}).join('');
 }
 function searchCustomers(q){
-  if(!q){renderCustomers(allCustomers,false);return;}
+  var countEl=document.getElementById('customerCount');
+  if(!q||!q.trim()){
+    if(countEl)countEl.textContent=allCustomers.length+' customers';
+    renderCustomers(allCustomers,false);
+    return;
+  }
   var q2=q.trim().toLowerCase();
-  if(!q2){renderCustomers(allCustomers,false);return;}
-  var startsWith=[];var contains=[];var phoneMatch=[];
+  var sw=[],ct=[],pm=[];
   for(var i=0;i<allCustomers.length;i++){
     var c=allCustomers[i];
-    var name=(c.name||'').toLowerCase();
-    var phone=(c.phone||'');
-    if(name.startsWith(q2))startsWith.push(c);
-    else if(name.includes(q2))contains.push(c);
-    else if(phone.includes(q))phoneMatch.push(c);
+    var nm=(c.name||'').toLowerCase();
+    var ph=(c.phone||'');
+    if(nm.startsWith(q2))sw.push(c);
+    else if(nm.indexOf(q2)>-1)ct.push(c);
+    else if(ph.indexOf(q)>-1)pm.push(c);
   }
-  startsWith.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-  contains.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-  var result=startsWith.concat(contains).concat(phoneMatch);
-  // Update count
-  var countEl=document.getElementById('customerCount');
+  // Sort each group alphabetically within itself
+  sw.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  ct.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  var result=sw.concat(ct).concat(pm);
   if(countEl)countEl.textContent=result.length+' / '+allCustomers.length+' customers';
-  // Render directly without re-sort
   var el=document.getElementById('customersList');
   if(!result.length){el.innerHTML='<div class="empty">Koi customer nahi</div>';return;}
+  // Render directly - NO sort - startsWith stays on top
   el.innerHTML=result.map(function(c){return customerCardHTML(c);}).join('');
 }
 
