@@ -676,11 +676,16 @@ function renderEmployees(list){document.getElementById('employeesList').innerHTM
 function searchEmployees(q){renderEmployees(allEmployees.filter(function(e){return(e.name&&e.name.toLowerCase().includes(q.toLowerCase()))||(e.phone&&e.phone.includes(q));}));}
 
 async function loadCustomers(force){
-  if(!force&&cacheTime.customers&&(Date.now()-cacheTime.customers)<CACHE_MS&&allCustomers.length){renderCustomers(allCustomers);return;}
+  if(!force&&cacheTime.customers&&(Date.now()-cacheTime.customers)<CACHE_MS&&allCustomers.length){
+    var q=document.getElementById('customerSearchInp')?document.getElementById('customerSearchInp').value:'';
+    if(q)searchCustomers(q);else renderCustomers(allCustomers,false);
+    return;
+  }
   document.getElementById('customersList').innerHTML='<div class="loading">Loading...</div>';
   var res=await api({action:'getCustomers'});
   if(res.success){allCustomers=res.data;cacheTime.customers=Date.now();}
-  renderCustomers(allCustomers);
+  var q=document.getElementById('customerSearchInp')?document.getElementById('customerSearchInp').value:'';
+  if(q)searchCustomers(q);else renderCustomers(allCustomers,false);
 }
 function customerCardHTML(c){
   var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):null;
@@ -692,11 +697,12 @@ function customerCardHTML(c){
 function updateCustomerCount(shown,total){
   var el=document.getElementById('customerCount');
   if(!el)return;
-  if(shown===total)el.textContent=total+' customers';
+  var q=document.getElementById('customerSearchInp')?document.getElementById('customerSearchInp').value.trim():'';
+  if(!q||shown===total)el.textContent=total+' customers';
   else el.textContent=shown+' / '+total+' customers';
 }
 function renderCustomers(list,skipSort){
-  var display=skipSort?list:list.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
+  var display=skipSort?list:list.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
   updateCustomerCount(display.length,allCustomers.length);
   document.getElementById('customersList').innerHTML=display.length===0
     ?'<div class="empty">Koi customer nahi</div>'
@@ -704,14 +710,27 @@ function renderCustomers(list,skipSort){
 }
 function searchCustomers(q){
   if(!q){renderCustomers(allCustomers,false);return;}
-  var q2=q.toLowerCase();
-  var startsWith=allCustomers.filter(function(c){return c.name&&c.name.toLowerCase().startsWith(q2);});
-  var contains=allCustomers.filter(function(c){return c.name&&!c.name.toLowerCase().startsWith(q2)&&c.name.toLowerCase().includes(q2);});
-  var phoneMatch=allCustomers.filter(function(c){return c.phone&&c.phone.includes(q)&&!(c.name&&c.name.toLowerCase().includes(q2));});
-  // startsWith alphabetically sorted among themselves, then contains, then phone
-  startsWith.sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
-  contains.sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
-  renderCustomers(startsWith.concat(contains).concat(phoneMatch),true);
+  var q2=q.trim().toLowerCase();
+  if(!q2){renderCustomers(allCustomers,false);return;}
+  var startsWith=[];var contains=[];var phoneMatch=[];
+  for(var i=0;i<allCustomers.length;i++){
+    var c=allCustomers[i];
+    var name=(c.name||'').toLowerCase();
+    var phone=(c.phone||'');
+    if(name.startsWith(q2))startsWith.push(c);
+    else if(name.includes(q2))contains.push(c);
+    else if(phone.includes(q))phoneMatch.push(c);
+  }
+  startsWith.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  contains.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  var result=startsWith.concat(contains).concat(phoneMatch);
+  // Update count
+  var countEl=document.getElementById('customerCount');
+  if(countEl)countEl.textContent=result.length+' / '+allCustomers.length+' customers';
+  // Render directly without re-sort
+  var el=document.getElementById('customersList');
+  if(!result.length){el.innerHTML='<div class="empty">Koi customer nahi</div>';return;}
+  el.innerHTML=result.map(function(c){return customerCardHTML(c);}).join('');
 }
 
 async function openCustomerDetail(id){
