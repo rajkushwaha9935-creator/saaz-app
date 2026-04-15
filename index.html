@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v3.4">
+<meta name="version" content="v3.5">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -895,7 +895,11 @@ function openModal(type,customHTML){
       '<div class="field"><label>Naam *</label><input id="ae-name" placeholder="Full naam"></div>'+
       '<div class="field"><label>Phone * (Login ke liye)</label><input id="ae-phone" type="tel" placeholder="Phone"></div>'+
       '<div class="field"><label>Password *</label><input id="ae-pass" type="password" placeholder="Password set karo"></div>'+
-      '<div class="field"><label>Role *</label><select id="ae-role"><option value="engineer">Engineer</option><option value="manager">Manager</option><option value="admin">Admin</option></select></div>'+
+      '<div class="field"><label>Role *</label><select id="ae-role">'+
+      (currentUser.role==='admin'
+        ?'<option value="engineer">Engineer</option><option value="manager">Manager</option><option value="admin">Admin</option>'
+        :'<option value="engineer">Engineer</option>')+
+      '</select></div>'+
       '<div class="field"><label>Area</label><input id="ae-area" placeholder="Jaise: Lanka-Sigra group"></div>'+
       '<button class="btn-primary" onclick="submitEmployee()" style="margin-top:8px">Add Karo</button>';
   }
