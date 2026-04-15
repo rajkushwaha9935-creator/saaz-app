@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v3.2">
+<meta name="version" content="v3.3">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -725,7 +725,7 @@ function searchCustomers(q){
   for(var i=0;i<allCustomers.length;i++){
     var c=allCustomers[i];
     var nm=(c.name||'').toLowerCase();
-    var ph=(c.phone||'');
+    var ph=String(c.phone||'');
     if(nm.startsWith(q2))sw.push(c);
     else if(nm.indexOf(q2)>-1)ct.push(c);
     else if(ph.indexOf(q)>-1)pm.push(c);
