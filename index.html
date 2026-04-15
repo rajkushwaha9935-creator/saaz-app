@@ -214,7 +214,10 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
         <button class="btn-success btn-sm" onclick="openModal('addCustomer')">+ Add</button>
       </div>
     </div>
-    <input class="search-inp" placeholder="Search naam, phone..." oninput="searchCustomers(this.value)">
+    <div style="position:relative;margin-bottom:12px">
+      <input class="search-inp" id="customerSearchInp" placeholder="Search naam, phone..." oninput="searchCustomers(this.value)" style="margin-bottom:0;padding-right:100px">
+      <div id="customerCount" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:#475569;pointer-events:none">0 customers</div>
+    </div>
     <div id="customersList"></div>
   </div>
   <div class="page" id="page-location">
@@ -679,33 +682,36 @@ async function loadCustomers(force){
   if(res.success){allCustomers=res.data;cacheTime.customers=Date.now();}
   renderCustomers(allCustomers);
 }
-function renderCustomers(list){
-  var sorted=list.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
-  document.getElementById('customersList').innerHTML=sorted.length===0?'<div class="empty">Koi customer nahi</div>':sorted.map(function(c){
-    var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):null;
-    return '<div class="card" style="border-left:3px solid '+(pend>0?'#ef4444':'#22c55e')+';cursor:pointer" onclick="openCustomerDetail(\''+c.id+'\')">'+
-      '<div class="flex-between"><div><div style="font-weight:700">'+c.name+'</div><div class="text-muted">'+c.phone+' - '+(c.area||'--')+'</div>'+
-      (pend>0?'<div class="text-danger" style="font-size:12px;margin-top:2px">Rs.'+parseFloat(pend).toLocaleString()+' pending</div>':'<div class="text-success" style="font-size:12px;margin-top:2px">Fully Paid</div>')+
-      '</div><button class="btn-outline btn-sm" onclick="event.stopPropagation();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div></div>';
-  }).join('');
+function customerCardHTML(c){
+  var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):null;
+  return '<div class="card" style="border-left:3px solid '+(pend>0?'#ef4444':'#22c55e')+';cursor:pointer" onclick="openCustomerDetail(\''+c.id+'\')">'+
+    '<div class="flex-between"><div><div style="font-weight:700">'+c.name+'</div><div class="text-muted">'+c.phone+' - '+(c.area||'--')+'</div>'+
+    (pend>0?'<div class="text-danger" style="font-size:12px;margin-top:2px">Rs.'+parseFloat(pend).toLocaleString()+' pending</div>':'<div class="text-success" style="font-size:12px;margin-top:2px">Fully Paid</div>')+
+    '</div><button class="btn-outline btn-sm" onclick="event.stopPropagation();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div></div>';
+}
+function updateCustomerCount(shown,total){
+  var el=document.getElementById('customerCount');
+  if(!el)return;
+  if(shown===total)el.textContent=total+' customers';
+  else el.textContent=shown+' / '+total+' customers';
+}
+function renderCustomers(list,skipSort){
+  var display=skipSort?list:list.slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
+  updateCustomerCount(display.length,allCustomers.length);
+  document.getElementById('customersList').innerHTML=display.length===0
+    ?'<div class="empty">Koi customer nahi</div>'
+    :display.map(function(c){return customerCardHTML(c);}).join('');
 }
 function searchCustomers(q){
-  if(!q){renderCustomers(allCustomers);return;}
+  if(!q){renderCustomers(allCustomers,false);return;}
   var q2=q.toLowerCase();
   var startsWith=allCustomers.filter(function(c){return c.name&&c.name.toLowerCase().startsWith(q2);});
   var contains=allCustomers.filter(function(c){return c.name&&!c.name.toLowerCase().startsWith(q2)&&c.name.toLowerCase().includes(q2);});
   var phoneMatch=allCustomers.filter(function(c){return c.phone&&c.phone.includes(q)&&!(c.name&&c.name.toLowerCase().includes(q2));});
-  var result=startsWith.concat(contains).concat(phoneMatch);
-  // Direct render without re-sorting so startsWith stays on top
-  var el=document.getElementById('customersList');
-  if(!result.length){el.innerHTML='<div class="empty">Koi customer nahi</div>';return;}
-  el.innerHTML=result.map(function(c){
-    var pend=c.totalAmount?parseFloat(c.totalAmount)-parseFloat(c.paidAmount||0):null;
-    return '<div class="card" style="border-left:3px solid '+(pend>0?'#ef4444':'#22c55e')+';cursor:pointer" onclick="openCustomerDetail(\''+c.id+'\')">'+
-      '<div class="flex-between"><div><div style="font-weight:700">'+c.name+'</div><div class="text-muted">'+c.phone+' - '+(c.area||'--')+'</div>'+
-      (pend>0?'<div class="text-danger" style="font-size:12px;margin-top:2px">Rs.'+parseFloat(pend).toLocaleString()+' pending</div>':'<div class="text-success" style="font-size:12px;margin-top:2px">Fully Paid</div>')+
-      '</div><button class="btn-outline btn-sm" onclick="event.stopPropagation();openAddMachineForCustomer(\''+c.id+'\',\''+c.name+'\')">+Machine</button></div></div>';
-  }).join('');
+  // startsWith alphabetically sorted among themselves, then contains, then phone
+  startsWith.sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
+  contains.sort(function(a,b){return (a.name||'').localeCompare(b.name||'','hi');});
+  renderCustomers(startsWith.concat(contains).concat(phoneMatch),true);
 }
 
 async function openCustomerDetail(id){
