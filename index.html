@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v3.3">
+<meta name="version" content="v3.4">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -931,9 +931,22 @@ async function submitComplaint(){
 }
 
 async function submitPayment(){
-  var cname=document.getElementById('ap-custname').value.trim();var total=document.getElementById('ap-total').value;
+  var cname=document.getElementById('ap-custname').value.trim();
+  var total=document.getElementById('ap-total').value;
+  var custId=document.getElementById('ap-customerId').value;
   if(!cname||!total){toast('Customer naam aur total amount zaroori hai!','#ef4444');return;}
-  var res=await api({action:'addPayment',customerId:document.getElementById('ap-customerId').value,customerName:cname,phone:document.getElementById('ap-phone').value,totalAmount:total,paidAmount:document.getElementById('ap-paid').value,promiseNote:document.getElementById('ap-promise').value,promiseDate:document.getElementById('ap-promdate').value,reminderDate:document.getElementById('ap-reminder').value});
+  // Duplicate check - same customer ka pending entry already hai?
+  var existing=allPayments.filter(function(p){
+    return (custId&&String(p.customerId)===String(custId))||(p.customerName&&p.customerName.toLowerCase()===cname.toLowerCase());
+  });
+  if(existing.length>0){
+    toast('Is customer ka payment reminder already hai! Pehle wala update karo.','#f59e0b');
+    closeModal();
+    // Highlight existing entry
+    filterPayments('all');
+    return;
+  }
+  var res=await api({action:'addPayment',customerId:custId,customerName:cname,phone:document.getElementById('ap-phone').value,totalAmount:total,paidAmount:document.getElementById('ap-paid').value,promiseNote:document.getElementById('ap-promise').value,promiseDate:document.getElementById('ap-promdate').value,reminderDate:document.getElementById('ap-reminder').value});
   if(res.success){toast('Payment reminder add ho gaya!');closeModal();invalidateCache('payments');loadPayments(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
