@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v3.7">
+<meta name="version" content="v3.9">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -541,14 +541,23 @@ function renderPayments(list){
 function paymentCardHTML(p){
   var ps=getPaymentStatus(p);var pending=parseFloat(p.pendingAmount||0);
   var psLabel=ps==='paid'?'Paid':ps==='today'?'Aaj':ps==='overdue'?'Overdue':'Pending';
-  var rdDays=p.reminderDate?daysFromToday(p.reminderDate):null;var pdDays=p.promiseDate?daysFromToday(p.promiseDate):null;
+  var pdDays=p.promiseDate?daysFromToday(p.promiseDate):null;
+  var phone=String(p.phone||'').trim();
+  var callBtn=phone&&phone!=='--'
+    ?'<a href="tel:'+phone+'" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;margin-top:8px">📞 Call</a>'
+    :'';
   return '<div class="payment-card '+ps+'" onclick="openPaymentDetail(\''+p.id+'\')">'+
-    '<div class="flex-between"><div style="font-weight:700;font-size:14px">'+p.customerName+'</div><span class="badge badge-'+(ps==='paid'?'paid':ps==='overdue'?'overdue':ps==='today'?'today':'pending')+'">'+psLabel+'</span></div>'+
-    '<div class="text-muted mt-8">'+(p.phone||'--')+'</div>'+
+    '<div class="flex-between">'+
+    '<div style="font-weight:700;font-size:14px">'+p.customerName+'</div>'+
+    '<span class="badge badge-'+(ps==='paid'?'paid':ps==='overdue'?'overdue':ps==='today'?'today':'pending')+'">'+psLabel+'</span>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">'+
+    '<div class="text-muted">'+(phone||'--')+'</div>'+
+    callBtn+
+    '</div>'+
     '<div style="font-size:13px;color:'+(pending>0?'#f87171':'#4ade80')+';font-weight:700;margin-top:4px">'+(pending>0?'Rs.'+pending.toLocaleString()+' pending':'Fully Paid')+'</div>'+
     (p.promiseNote?'<div style="font-size:12px;color:#fbbf24;margin-top:4px">Wada: "'+p.promiseNote+'"</div>':'')+
-    (p.reminderDate?'<div style="font-size:11px;color:#94a3b8;margin-top:4px">Reminder: '+fmt(p.reminderDate)+(rdDays!==null?' ('+dLabel(rdDays)+')':'')+'</div>':'')+
-    (p.promiseDate?'<div style="font-size:11px;color:#94a3b8">Promise: '+fmt(p.promiseDate)+(pdDays!==null?' ('+dLabel(pdDays)+')':'')+'</div>':'')+
+    (p.promiseDate?'<div style="font-size:11px;color:#94a3b8;margin-top:2px">Promise: '+fmt(p.promiseDate)+(pdDays!==null?' ('+dLabel(pdDays)+')':'')+'</div>':'')+
     '</div>';
 }
 
@@ -822,7 +831,23 @@ async function submitEditCustomer(id){
 
 function openAddPaymentForCustomer(cid,cname,phone,total,paid){
   openModal('addPayment');
-  setTimeout(function(){document.getElementById('ap-customerId').value=cid;document.getElementById('ap-custname').value=cname;document.getElementById('ap-phone').value=phone;document.getElementById('ap-total').value=total||0;document.getElementById('ap-paid').value=paid||0;},100);
+  setTimeout(function(){
+    var t=parseFloat(total||0);var p=parseFloat(paid||0);var pend=t-p;
+    document.getElementById('ap-customerId').value=cid;
+    document.getElementById('ap-custname').value=cname;
+    document.getElementById('ap-phone').value=phone;
+    document.getElementById('ap-total').value=t;
+    document.getElementById('ap-paid').value=p;
+    var infoBox=document.getElementById('ap-amount-info');
+    if(infoBox){
+      infoBox.style.display='block';
+      document.getElementById('ap-show-total').textContent='Rs.'+t.toLocaleString();
+      document.getElementById('ap-show-paid').textContent='Rs.'+p.toLocaleString();
+      var pendEl=document.getElementById('ap-show-pending');
+      pendEl.textContent='Rs.'+pend.toLocaleString();
+      pendEl.style.color=pend>0?'#f87171':'#4ade80';
+    }
+  },100);
 }
 
 async function shareLocation(){
@@ -856,9 +881,25 @@ async function ccSelect(el){
 }
 
 function apSelect(el){
-  document.getElementById('ap-customerId').value=el.dataset.cid;document.getElementById('ap-custname').value=el.dataset.cname;
-  document.getElementById('ap-phone').value=el.dataset.phone;document.getElementById('ap-total').value=el.dataset.total;
-  document.getElementById('ap-paid').value=el.dataset.paid;document.getElementById('ap-suggestions').style.display='none';
+  var total=parseFloat(el.dataset.total||0);
+  var paid=parseFloat(el.dataset.paid||0);
+  var pending=total-paid;
+  document.getElementById('ap-customerId').value=el.dataset.cid;
+  document.getElementById('ap-custname').value=el.dataset.cname;
+  document.getElementById('ap-phone').value=el.dataset.phone;
+  document.getElementById('ap-total').value=total;
+  document.getElementById('ap-paid').value=paid;
+  document.getElementById('ap-suggestions').style.display='none';
+  // Show amount info box
+  var infoBox=document.getElementById('ap-amount-info');
+  if(infoBox){
+    infoBox.style.display='block';
+    document.getElementById('ap-show-total').textContent='Rs.'+total.toLocaleString();
+    document.getElementById('ap-show-paid').textContent='Rs.'+paid.toLocaleString();
+    var pendEl=document.getElementById('ap-show-pending');
+    pendEl.textContent='Rs.'+pending.toLocaleString();
+    pendEl.style.color=pending>0?'#f87171':'#4ade80';
+  }
 }
 
 function amSelect(el){
@@ -891,12 +932,19 @@ function openModal(type,customHTML){
   if(type==='addPayment'){
     content.innerHTML='<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Payment Reminder Add Karo</div>'+
       '<input type="hidden" id="ap-customerId">'+
+      '<input type="hidden" id="ap-total" value="0">'+
+      '<input type="hidden" id="ap-paid" value="0">'+
+      '<input type="hidden" id="ap-phone" value="">'+
       '<div class="field"><label>Customer Naam * (type karo)</label><input id="ap-custname" placeholder="Naam type karo..." autocomplete="off" oninput="custSuggest(this.value,\'ap\',\'ap-suggestions\')"><div id="ap-suggestions" style="background:#0f172a;border:1px solid #334155;border-radius:8px;margin-top:4px;display:none;max-height:140px;overflow-y:auto"></div></div>'+
-      '<div class="field"><label>Phone</label><input id="ap-phone" type="tel" placeholder="Phone"></div>'+
-      '<div class="field"><label>Total Amount (Rs.)</label><input id="ap-total" type="number" placeholder="0"></div>'+
-      '<div class="field"><label>Paid Amount (Rs.)</label><input id="ap-paid" type="number" placeholder="0"></div>'+
-      '<div class="field"><label>Customer Ka Wada (Promise Note)</label><textarea id="ap-promise" placeholder="Jaise: 15 April tak de denge, harvest ke baad..."></textarea></div>'+
-      '<div class="field"><label>Promise Date (Customer Ne Kab Dene Ka Wada Kiya?)</label><input id="ap-promdate" type="date"></div>'+
+      '<div id="ap-amount-info" style="display:none;background:#0f172a;border-radius:10px;padding:12px;margin-bottom:12px">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">'+
+        '<div><div style="font-size:10px;color:#94a3b8">Total</div><div id="ap-show-total" style="font-weight:800;font-size:15px">Rs.0</div></div>'+
+        '<div><div style="font-size:10px;color:#94a3b8">Paid</div><div id="ap-show-paid" style="font-weight:800;font-size:15px;color:#4ade80">Rs.0</div></div>'+
+        '<div><div style="font-size:10px;color:#94a3b8">Pending</div><div id="ap-show-pending" style="font-weight:800;font-size:15px;color:#f87171">Rs.0</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="field"><label>Customer Ka Wada (Promise Note)</label><textarea id="ap-promise" placeholder="Jaise: Kal tak de denge, harvest ke baad..."></textarea></div>'+
+      '<div class="field"><label>Promise Date (Kab Dene Ka Wada Kiya?)</label><input id="ap-promdate" type="date"></div>'+
       '<button class="btn-primary" onclick="submitPayment()" style="margin-top:8px">Add Karo</button>';
   }
 
