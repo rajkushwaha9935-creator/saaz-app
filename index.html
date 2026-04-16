@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v3.9">
+<meta name="version" content="v4.1">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -543,8 +543,17 @@ function paymentCardHTML(p){
   var psLabel=ps==='paid'?'Paid':ps==='today'?'Aaj':ps==='overdue'?'Overdue':'Pending';
   var pdDays=p.promiseDate?daysFromToday(p.promiseDate):null;
   var phone=String(p.phone||'').trim();
+  var phoneClean=phone.replace(/\D/g,'');
+  if(phoneClean.length===10)phoneClean='91'+phoneClean;
   var callBtn=phone&&phone!=='--'
-    ?'<a href="tel:'+phone+'" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;margin-top:8px">📞 Call</a>'
+    ?'<a href="tel:'+phone+'" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none">📞 Call</a>'
+    :'';
+  var waMsg='Namaskar '+p.customerName+' Ji,\n\nSAAZ Electronic Varanasi ki taraf se aapko yaad dilana tha ki aapka Rs.'+pending.toLocaleString()+' payment abhi baki hai.'+
+    (p.promiseDate?' Aapne '+fmt(p.promiseDate)+' tak dene ka wada kiya tha.':'')+
+    '\n\nKripya jald se jald payment karein.\n\nDhanyawad!\nSAAZ Electronic, Varanasi';
+  var waUrl='https://wa.me/'+phoneClean+'?text='+encodeURIComponent(waMsg);
+  var waBtn=phoneClean
+    ?'<a href="'+waUrl+'" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;background:#25d366;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none">💬 WA</a>'
     :'';
   return '<div class="payment-card '+ps+'" onclick="openPaymentDetail(\''+p.id+'\')">'+
     '<div class="flex-between">'+
@@ -553,7 +562,7 @@ function paymentCardHTML(p){
     '</div>'+
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">'+
     '<div class="text-muted">'+(phone||'--')+'</div>'+
-    callBtn+
+    '<div style="display:flex;gap:6px">'+callBtn+waBtn+'</div>'+
     '</div>'+
     '<div style="font-size:13px;color:'+(pending>0?'#f87171':'#4ade80')+';font-weight:700;margin-top:4px">'+(pending>0?'Rs.'+pending.toLocaleString()+' pending':'Fully Paid')+'</div>'+
     (p.promiseNote?'<div style="font-size:12px;color:#fbbf24;margin-top:4px">Wada: "'+p.promiseNote+'"</div>':'')+
