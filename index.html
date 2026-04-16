@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v3.5">
+<meta name="version" content="v3.7">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -164,7 +164,10 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
       <button class="btn-outline btn-sm" onclick="filterPayments('today')" id="pf-today">Aaj</button>
       <button class="btn-outline btn-sm" onclick="filterPayments('overdue')" id="pf-overdue">Overdue</button>
       <button class="btn-outline btn-sm" onclick="filterPayments('pending')" id="pf-pending">Pending</button>
-      
+    </div>
+    <div style="position:relative;margin-bottom:12px">
+      <input class="search-inp" id="paymentSearchInp" placeholder="Customer naam search karo..." oninput="searchPayments(this.value)" style="margin-bottom:0;padding-right:110px">
+      <div id="paymentCount" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:#475569;pointer-events:none"></div>
     </div>
     <div id="paymentsList"></div>
   </div>
@@ -503,15 +506,35 @@ function filterPayments(f){
   currentPaymentFilter=f;
   document.querySelectorAll('[id^="pf-"]').forEach(function(b){b.style.background='transparent';b.style.color='#60a5fa';});
   var btn=document.getElementById('pf-'+f);if(btn){btn.style.background='#334155';btn.style.color='#fff';}
+  // Clear search when filter changes
+  var sinp=document.getElementById('paymentSearchInp');if(sinp)sinp.value='';
   var filtered=allPayments;
-  if(f==='paid')filtered=allPayments.filter(function(p){return p.status==='paid';});
-  else if(f==='today')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='today';});
+  if(f==='today')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='today';});
   else if(f==='overdue')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='overdue';});
   else if(f==='pending')filtered=allPayments.filter(function(p){return getPaymentStatus(p)==='pending';});
   renderPayments(sortPayments(filtered));
 }
 
+function searchPayments(q){
+  var countEl=document.getElementById('paymentCount');
+  if(!q||!q.trim()){
+    if(countEl)countEl.textContent=allPayments.length+' records';
+    renderPayments(sortPayments(allPayments));
+    return;
+  }
+  var q2=q.trim().toLowerCase();
+  var filtered=allPayments.filter(function(p){
+    return (p.customerName&&p.customerName.toLowerCase().indexOf(q2)>-1)||
+           (p.phone&&String(p.phone).indexOf(q)>-1);
+  });
+  if(countEl)countEl.textContent=filtered.length+' / '+allPayments.length+' records';
+  renderPayments(sortPayments(filtered));
+}
+
 function renderPayments(list){
+  var countEl=document.getElementById('paymentCount');
+  var q=document.getElementById('paymentSearchInp')?document.getElementById('paymentSearchInp').value.trim():'';
+  if(countEl&&!q)countEl.textContent=list.length+' records';
   document.getElementById('paymentsList').innerHTML=list.length===0?'<div class="empty">Koi payment record nahi</div>':list.map(function(p){return paymentCardHTML(p);}).join('');
 }
 
@@ -532,74 +555,75 @@ function paymentCardHTML(p){
 async function openPaymentDetail(id){
   var p=allPayments.find(function(x){return String(x.id)===String(id);});if(!p)return;
   var pending=parseFloat(p.pendingAmount||0);
-  var rdVal=p.reminderDate?new Date(p.reminderDate).toISOString().split('T')[0]:'';
-  var pdVal=p.promiseDate?new Date(p.promiseDate).toISOString().split('T')[0]:'';
   var isAM=currentUser.role!=='engineer';
+  // Load history
   var hr=await api({action:'getPaymentHistory',paymentId:id});
   var history=hr.success?hr.data:[];
   var historyHTML=history.length===0
     ?'<div style="color:#64748b;font-size:13px;padding:8px 0">Abhi koi entry nahi</div>'
     :history.map(function(h){
-        var ac=h.action==='Payment Kiya'||h.action==='Partial Payment'?'#4ade80':h.action==='Phone Nahi Uthaya'||h.action==='Phone Band Tha'?'#f87171':'#fbbf24';
+        var ac=h.action==='Payment Kiya'||h.action==='Partial Payment'?'#4ade80':
+                h.action==='Phone Nahi Uthaya'||h.action==='Phone Band Tha'?'#f87171':'#fbbf24';
         return '<div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid '+ac+'">'+
-          '<div style="display:flex;justify-content:space-between">'+
+          '<div style="display:flex;justify-content:space-between;margin-bottom:4px">'+
           '<span style="font-weight:700;font-size:12px;color:'+ac+'">'+h.action+'</span>'+
           '<span style="font-size:11px;color:#64748b">'+fmt(h.date)+'</span></div>'+
-          (h.note?'<div style="font-size:13px;color:#e2e8f0;margin-top:4px">'+h.note+'</div>':'')+
+          (h.note?'<div style="font-size:13px;color:#e2e8f0">'+h.note+'</div>':'')+
           '<div style="font-size:11px;color:#64748b;margin-top:2px">By: '+h.addedBy+'</div></div>';
       }).join('');
   var actionOpts=['Payment Kiya','Partial Payment','Naya Wada','Phone Nahi Uthaya','Busy Bataya','Phone Band Tha','Milne Aaya','Koi Aur Wajah'];
-  var pid=p.id, pcustid=p.customerId||'', pcustname=p.customerName||'';
-  openModal('custom','<button class="modal-close" onclick="closeModal()">X</button><div class="modal-title">Payment Detail</div>'+
-    '<div class="field"><label>Customer</label><div style="padding:4px 0;font-weight:700">'+p.customerName+'</div></div>'+
-    '<div class="field"><label>Phone</label><div style="padding:4px 0">'+(p.phone||'--')+'</div></div>'+
-    '<div class="field"><label>Total Amount</label><div style="padding:4px 0">Rs.'+parseFloat(p.totalAmount||0).toLocaleString()+'</div></div>'+
-    '<div class="field"><label>Paid Amount</label><div style="padding:4px 0;color:#4ade80">Rs.'+parseFloat(p.paidAmount||0).toLocaleString()+'</div></div>'+
-    '<div class="field"><label>Pending Amount</label><div style="padding:4px 0;color:'+(pending>0?'#f87171':'#4ade80')+';font-weight:700">Rs.'+pending.toLocaleString()+'</div></div>'+
-    '<div class="field"><label>Customer Ka Wada</label><div style="padding:4px 0;color:#fbbf24">'+(p.promiseNote||'--')+'</div></div>'+
-    '<div class="field"><label>Promise Date</label><div style="padding:4px 0">'+fmt(p.promiseDate)+'</div></div>'+
-    '<div class="field"><label>Reminder Date</label><div style="padding:4px 0">'+fmt(p.reminderDate)+'</div></div>'+
-    (isAM?
-      '<div class="divider"></div><div style="font-weight:700;margin-bottom:10px">Update Karo</div>'+
-      '<div class="field"><label>Naya Paid Amount (Rs.)</label><input id="upd-paid" type="number" value="'+(p.paidAmount||0)+'"></div>'+
-      '<div class="field"><label>Naya Reminder Date</label><input id="upd-reminder" type="date" value="'+rdVal+'"></div>'+
-      '<div class="field"><label>Customer Ka Naya Wada</label><input id="upd-promise" placeholder="Kya bola..." value="'+(p.promiseNote||'')+'"></div>'+
-      '<div class="field"><label>Naya Promise Date</label><input id="upd-promdate" type="date" value="'+pdVal+'"></div>'+
-      '<button class="btn-primary" id="upd-btn">Update Karo</button>'+
-      (p.status!=='paid'?'<button class="btn-success" style="margin-top:8px;width:100%" id="paid-btn">Fully Paid Mark Karo</button>':'')
-    :'')+
-    '<div class="divider"></div>'+
+  var rdVal=p.reminderDate?new Date(p.reminderDate).toISOString().split('T')[0]:'';
+  var pdVal=p.promiseDate?new Date(p.promiseDate).toISOString().split('T')[0]:'';
+  var pid=p.id,pcustid=p.customerId||'',pcustname=p.customerName||'';
+
+  openModal('custom',
+    '<button class="modal-close" onclick="closeModal()">X</button>'+
+    '<div class="modal-title">'+p.customerName+'</div>'+
+    // Info section
+    '<div style="background:#0f172a;border-radius:10px;padding:12px;margin-bottom:14px">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">'+
+    '<div><div style="font-size:10px;color:#94a3b8">Total</div><div style="font-weight:800;font-size:15px">Rs.'+parseFloat(p.totalAmount||0).toLocaleString()+'</div></div>'+
+    '<div><div style="font-size:10px;color:#94a3b8">Paid</div><div style="font-weight:800;font-size:15px;color:#4ade80">Rs.'+parseFloat(p.paidAmount||0).toLocaleString()+'</div></div>'+
+    '<div><div style="font-size:10px;color:#94a3b8">Pending</div><div style="font-weight:800;font-size:15px;color:'+(pending>0?'#f87171':'#4ade80')+'">Rs.'+pending.toLocaleString()+'</div></div>'+
+    '</div>'+
+    (p.promiseNote?'<div style="margin-top:10px;font-size:12px;color:#fbbf24;border-top:1px solid #1e293b;padding-top:8px">Purana Wada: "'+p.promiseNote+'"</div>':'')+
+    (p.promiseDate?'<div style="font-size:11px;color:#94a3b8;margin-top:2px">Promise Date: '+fmt(p.promiseDate)+'</div>':'')+
+    (p.reminderDate?'<div style="font-size:11px;color:#94a3b8">Reminder: '+fmt(p.reminderDate)+'</div>':'')+
+    '</div>'+
+    // History
     '<div style="font-weight:700;margin-bottom:8px">Activity History ('+history.length+')</div>'+
     historyHTML+
+    // Unified update form (admin/manager only)
     (isAM?
       '<div class="divider"></div>'+
-      '<div style="font-weight:700;margin-bottom:10px;color:#60a5fa">Aaj Ki Entry Add Karo</div>'+
+      '<div style="font-weight:700;margin-bottom:12px;color:#60a5fa">Aaj Ki Update</div>'+
+      '<div class="field"><label>Aaj Kitna Mila? (Rs.) — 0 rakho agar nahi mila</label>'+
+      '<input id="upd-paid-new" type="number" placeholder="0" value="0"></div>'+
       '<div class="field"><label>Customer Ne Kya Kiya?</label>'+
       '<select id="ph-action" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px">'+
       actionOpts.map(function(a){return '<option>'+a+'</option>';}).join('')+
       '</select></div>'+
-      '<div class="field"><label>Note (optional)</label><textarea id="ph-note" placeholder="Detail likhо..." style="min-height:60px"></textarea></div>'+
-      '<button class="btn-warning" id="ph-save-btn">Entry Save Karo</button>'
+      '<div class="field"><label>Customer Ka Naya Wada</label>'+
+      '<input id="upd-promise" placeholder="Kya bola..." value="'+(p.promiseNote||'')+'"></div>'+
+      '<div class="field"><label>Agla Promise Date (Kab Dene Ka Wada Kiya?)</label>'+
+      '<input id="upd-promdate" type="date" value="'+pdVal+'"></div>'+
+      '<div class="field"><label>Note (optional)</label>'+
+      '<textarea id="ph-note" placeholder="Koi aur detail..." style="min-height:60px"></textarea></div>'+
+      '<button class="btn-primary" id="unified-update-btn" style="margin-top:8px">Update Karo</button>'
     :'')
   );
+
   if(isAM){
-    var updBtn=document.getElementById('upd-btn');
-    if(updBtn)updBtn.onclick=function(){updatePaymentRecord(pid);};
-    var paidBtn=document.getElementById('paid-btn');
-    if(paidBtn)paidBtn.onclick=function(){markPaid(pid,p.totalAmount);};
-    var phBtn=document.getElementById('ph-save-btn');
-    if(phBtn)phBtn.onclick=function(){submitPaymentHistory(pid,pcustid,pcustname);};
+    document.getElementById('unified-update-btn').onclick=function(){
+      unifiedPaymentUpdate(pid,pcustid,pcustname,parseFloat(p.paidAmount||0),parseFloat(p.totalAmount||0));
+    };
   }
 }
 
 async function updatePaymentRecord(id){
-  var res=await api({action:'updatePayment',id:id,paidAmount:document.getElementById('upd-paid').value,reminderDate:document.getElementById('upd-reminder').value,promiseNote:document.getElementById('upd-promise').value,promiseDate:document.getElementById('upd-promdate').value});
+  // Legacy - kept for compatibility
+  var res=await api({action:'updatePayment',id:id,paidAmount:document.getElementById('upd-paid')?document.getElementById('upd-paid').value:0});
   if(res.success){toast('Update ho gaya!');closeModal();invalidateCache('payments');loadPayments(true);}else toast('Error: '+res.error,'#ef4444');
-}
-
-async function markPaid(id,total){
-  var res=await api({action:'updatePayment',id:id,paidAmount:total,status:'paid'});
-  if(res.success){toast('Fully paid mark ho gaya!');closeModal();invalidateCache('payments');loadPayments(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
 async function loadMachines(force){
@@ -872,8 +896,7 @@ function openModal(type,customHTML){
       '<div class="field"><label>Total Amount (Rs.)</label><input id="ap-total" type="number" placeholder="0"></div>'+
       '<div class="field"><label>Paid Amount (Rs.)</label><input id="ap-paid" type="number" placeholder="0"></div>'+
       '<div class="field"><label>Customer Ka Wada (Promise Note)</label><textarea id="ap-promise" placeholder="Jaise: 15 April tak de denge, harvest ke baad..."></textarea></div>'+
-      '<div class="field"><label>Promise Date (kab dene ka kaha)</label><input id="ap-promdate" type="date"></div>'+
-      '<div class="field"><label>Reminder Date (aapko kab yaad dilana hai)</label><input id="ap-reminder" type="date"></div>'+
+      '<div class="field"><label>Promise Date (Customer Ne Kab Dene Ka Wada Kiya?)</label><input id="ap-promdate" type="date"></div>'+
       '<button class="btn-primary" onclick="submitPayment()" style="margin-top:8px">Add Karo</button>';
   }
 
@@ -950,7 +973,8 @@ async function submitPayment(){
     filterPayments('all');
     return;
   }
-  var res=await api({action:'addPayment',customerId:custId,customerName:cname,phone:document.getElementById('ap-phone').value,totalAmount:total,paidAmount:document.getElementById('ap-paid').value,promiseNote:document.getElementById('ap-promise').value,promiseDate:document.getElementById('ap-promdate').value,reminderDate:document.getElementById('ap-reminder').value});
+  var _pd=document.getElementById('ap-promdate').value;
+  var res=await api({action:'addPayment',customerId:custId,customerName:cname,phone:document.getElementById('ap-phone').value,totalAmount:total,paidAmount:document.getElementById('ap-paid').value,promiseNote:document.getElementById('ap-promise').value,promiseDate:_pd,reminderDate:_pd});
   if(res.success){toast('Payment reminder add ho gaya!');closeModal();invalidateCache('payments');loadPayments(true);}else toast('Error: '+res.error,'#ef4444');
 }
 
@@ -991,6 +1015,51 @@ async function submitComplaintHistory(complaintId,customerId,customerName,machin
   var res=await api({action:'addComplaintHistory',complaintId:complaintId,customerId:customerId,customerName:customerName,machineInfo:machineInfo,problem:problem,solution:solution,addedBy:currentUser.name});
   if(res.success){toast('History save ho gayi!');closeModal();invalidateCache('complaints');}
   else toast('Error: '+res.error,'#ef4444');
+}
+
+async function unifiedPaymentUpdate(pid,custId,custName,oldPaid,totalAmount){
+  var newRecvd=parseFloat(document.getElementById('upd-paid-new').value||0);
+  var action=document.getElementById('ph-action').value;
+  var promiseNote=document.getElementById('upd-promise').value.trim();
+  var promiseDate=document.getElementById('upd-promdate').value;
+  var reminderDate=promiseDate; // same as promise date
+  var note=document.getElementById('ph-note').value.trim();
+
+  // Calculate new paid amount
+  var newPaid=oldPaid+newRecvd;
+  if(newPaid>totalAmount)newPaid=totalAmount;
+  var newPending=totalAmount-newPaid;
+
+  // Auto-paid if pending becomes 0
+  var newStatus=newPending<=0?'paid':'pending';
+
+  // Build note for history
+  var histNote=note;
+  if(newRecvd>0)histNote='Rs.'+newRecvd.toLocaleString()+' mila'+(note?' | '+note:'');
+
+  // Save history entry
+  if(action){
+    await api({action:'addPaymentHistory',paymentId:pid,customerId:custId,customerName:custName,
+      action:action,note:histNote,addedBy:currentUser.name});
+  }
+
+  // Update payment record - promise date = reminder date
+  var res=await api({action:'updatePayment',id:pid,
+    paidAmount:newPaid,
+    reminderDate:promiseDate,
+    promiseNote:promiseNote,
+    promiseDate:promiseDate,
+    status:newStatus
+  });
+
+  if(res.success){
+    if(newStatus==='paid')toast(custName+' ka payment complete ho gaya!','#22c55e');
+    else if(newRecvd>0)toast('Rs.'+newRecvd.toLocaleString()+' update ho gaya!');
+    else toast('Update ho gaya!');
+    closeModal();
+    invalidateCache('payments');
+    loadPayments(true);
+  } else toast('Error: '+res.error,'#ef4444');
 }
 
 function refreshPage(page){
