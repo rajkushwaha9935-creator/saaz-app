@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v4.7">
+<meta name="version" content="v5.0">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -204,11 +204,15 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
   </div>
   <div class="page" id="page-employees">
     <div class="flex-between" style="margin-bottom:14px">
-      <div class="page-title" style="margin:0">Employees</div>
+      <div class="page-title" style="margin:0">Team</div>
       <button class="btn-success btn-sm" onclick="openModal('addEmployee')">+ Add</button>
     </div>
-    <input class="search-inp" placeholder="Search..." oninput="searchEmployees(this.value)">
-    <div id="employeesList"></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button class="btn-outline btn-sm" onclick="showTeamTab('today')" id="tt-today" style="background:#334155;color:#fff">Aaj</button>
+      <button class="btn-outline btn-sm" onclick="showTeamTab('members')" id="tt-members">Members</button>
+    </div>
+    <div id="todaySummaryList"></div>
+    <div id="employeesList" style="display:none"></div>
   </div>
   <div class="page" id="page-customers">
     <div class="flex-between" style="margin-bottom:14px">
@@ -357,7 +361,7 @@ async function loadPage(id){
   else if(id==='payments'){await ensureData();loadPayments();}
   else if(id==='machines')loadMachines();
   else if(id==='attendance')loadAttendance();
-  else if(id==='employees')loadEmployees();
+  else if(id==='employees'){loadTodaySummary();}
   else if(id==='map')loadMap();
   else if(id==='location'){
     var statusEl=document.getElementById('trackingStatus');
@@ -1330,6 +1334,113 @@ async function unifiedPaymentUpdate(pid,custId,custName,oldPaid,totalAmount){
     invalidateCache('payments');
     loadPayments(true);
   } else toast('Error: '+res.error,'#ef4444');
+}
+
+function showTeamTab(tab){
+  document.querySelectorAll('[id^="tt-"]').forEach(function(b){b.style.background='transparent';b.style.color='#60a5fa';});
+  var btn=document.getElementById('tt-'+tab);
+  if(btn){btn.style.background='#334155';btn.style.color='#fff';}
+  var todayEl=document.getElementById('todaySummaryList');
+  var membersEl=document.getElementById('employeesList');
+  if(tab==='today'){
+    todayEl.style.display='block';membersEl.style.display='none';
+    loadTodaySummary();
+  } else {
+    todayEl.style.display='none';membersEl.style.display='block';
+    loadEmployees();
+  }
+}
+
+async function loadTodaySummary(){
+  var el=document.getElementById('todaySummaryList');
+  if(!el)return;
+  el.innerHTML='<div class="loading">Loading...</div>';
+  var res=await api({action:'getTodayAttendanceSummary'});
+  var data=res.success?res.data:[];
+  if(!data.length){el.innerHTML='<div class="empty">Koi engineer nahi</div>';return;}
+  var html='';
+  data.forEach(function(e){
+    var statusColor=e.status==='active'?'#22c55e':e.status==='checked-out'?'#60a5fa':'#ef4444';
+    var statusLabel=e.status==='active'?'Active':e.status==='checked-out'?'Done':'Absent';
+    var statusBg=e.status==='active'?'#14532d':e.status==='checked-out'?'#1e3a5f':'#7f1d1d';
+    var statusFg=e.status==='active'?'#86efac':e.status==='checked-out'?'#93c5fd':'#fca5a5';
+    var inT=e.checkIn?new Date(e.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'--';
+    var outT=e.checkOut?new Date(e.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'--';
+    html+='<div class="card" style="border-left:3px solid '+statusColor+';cursor:pointer;margin-bottom:10px" id="engcard-'+e.employeeId+'">'+
+      '<div class="flex-between">'+
+      '<div style="font-weight:700;font-size:14px">'+e.employeeName+'</div>'+
+      '<span class="badge" style="background:'+statusBg+';color:'+statusFg+'">'+statusLabel+'</span>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">'+
+      '<div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center">'+
+      '<div style="font-size:10px;color:#94a3b8">Check In</div>'+
+      '<div style="font-weight:700;font-size:13px">'+inT+'</div></div>'+
+      '<div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center">'+
+      '<div style="font-size:10px;color:#94a3b8">Check Out</div>'+
+      '<div style="font-weight:700;font-size:13px">'+outT+'</div></div>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px">'+
+      '<div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center">'+
+      '<div style="font-size:10px;color:#94a3b8">Distance</div>'+
+      '<div style="font-weight:700;font-size:13px;color:#60a5fa">'+e.distanceKm+' km</div></div>'+
+      '<div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center">'+
+      '<div style="font-size:10px;color:#94a3b8">Locations</div>'+
+      '<div style="font-weight:700;font-size:13px;color:#fbbf24">'+e.locationCount+'</div></div>'+
+      '<div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center">'+
+      '<div style="font-size:10px;color:#94a3b8">Complaints</div>'+
+      '<div style="font-weight:700;font-size:13px;color:#4ade80">'+e.complaintsHandled+'</div></div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#64748b;margin-top:6px">Tap karke history dekho</div>'+
+      '</div>';
+  });
+  el.innerHTML=html;
+  // Attach click handlers after render
+  data.forEach(function(e){
+    var card=document.getElementById('engcard-'+e.employeeId);
+    if(card){
+      var eid=e.employeeId, ename=e.employeeName;
+      card.onclick=function(){openEngineerHistory(eid,ename);};
+    }
+  });
+}
+
+async function openEngineerHistory(empId, empName){
+  var modalHTML='<button class="modal-close" onclick="closeModal()">X</button>'+
+    '<div class="modal-title">'+empName+' - History</div>'+
+    '<div id="engHistoryContent"><div class="loading">Loading...</div></div>';
+  openModal('custom', modalHTML);
+  var res=await api({action:'getEngineerSummary',employeeId:empId});
+  var data=res.success?res.data:[];
+  var el=document.getElementById('engHistoryContent');
+  if(!el)return;
+  if(!data.length){el.innerHTML='<div class="empty">Koi record nahi (2 mahine mein)</div>';return;}
+  var html='<div style="font-size:11px;color:#64748b;margin-bottom:10px">Pichle 2 mahine ka record</div>';
+  data.forEach(function(d){
+    var inT=d.checkIn?new Date(d.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'--';
+    var outT=d.checkOut?new Date(d.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'--';
+    var dateStr=new Date(d.date).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'});
+    var dist=parseFloat(d.distanceKm||0).toFixed(1);
+    var ot=parseFloat(d.otHours||0);
+    html+='<div style="background:#0f172a;border-radius:10px;padding:12px;margin-bottom:10px">'+
+      '<div class="flex-between" style="margin-bottom:8px">'+
+      '<div style="font-weight:700">'+dateStr+'</div>'+
+      '<div style="font-size:12px;color:#60a5fa">'+inT+' - '+outT+'</div>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center">'+
+      '<div style="background:#1e293b;border-radius:8px;padding:8px">'+
+        '<div style="font-size:10px;color:#94a3b8">Distance</div>'+
+        '<div style="font-weight:800;color:#60a5fa">'+dist+' km</div></div>'+
+      '<div style="background:#1e293b;border-radius:8px;padding:8px">'+
+        '<div style="font-size:10px;color:#94a3b8">Locations</div>'+
+        '<div style="font-weight:800;color:#fbbf24">'+(d.totalLocations||0)+'</div></div>'+
+      '<div style="background:#1e293b;border-radius:8px;padding:8px">'+
+        '<div style="font-size:10px;color:#94a3b8">Complaints</div>'+
+        '<div style="font-weight:800;color:#4ade80">'+(d.complaintsHandled||0)+'</div></div>'+
+      '</div>'+
+      (ot>0?'<div style="font-size:11px;color:#f59e0b;margin-top:6px">OT: '+ot+' hours</div>':'')+
+      '</div>';
+  });
+  el.innerHTML=html;
 }
 
 function refreshPage(page){
