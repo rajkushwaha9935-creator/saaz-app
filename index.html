@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v4.3">
+<meta name="version" content="v4.4">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -333,6 +333,8 @@ function startApp(){
   document.getElementById('headerName').textContent=currentUser.name;
   document.getElementById('headerRole').textContent=currentUser.role==='admin'?'Admin':currentUser.role==='manager'?'Manager':'Engineer';
   buildNav();showPage(currentUser.role==='engineer'?'attendance':'dashboard');startClock();
+  // Resume tracking if was active before refresh
+  setTimeout(resumeTrackingIfActive, 1000);
 }
 
 function buildNav(){
@@ -358,6 +360,18 @@ async function loadPage(id){
   else if(id==='attendance')loadAttendance();
   else if(id==='employees')loadEmployees();
   else if(id==='map')loadMap();
+  else if(id==='location'){
+    // Update UI to reflect current tracking state
+    var startBtn=document.getElementById('startTrackBtn');
+    var statusEl=document.getElementById('trackingStatus');
+    if(trackingInterval){
+      if(startBtn){startBtn.textContent='✅ Tracking Active';startBtn.style.background='#334155';startBtn.onclick=null;}
+      if(statusEl){statusEl.textContent='Active - har 30 sec mein save ho raha hai';statusEl.style.color='#4ade80';}
+    } else {
+      if(startBtn){startBtn.textContent='▶ Tracking Start Karo';startBtn.style.background='';startBtn.onclick=startTracking;}
+      if(statusEl){statusEl.textContent='Off';statusEl.style.color='#94a3b8';}
+    }
+  }
   else if(id==='customers'){
     var sinp=document.getElementById('customerSearchInp');
     if(sinp)sinp.value='';
@@ -896,25 +910,33 @@ function startTracking(){
   if(!navigator.geolocation){toast('GPS support nahi hai','#ef4444');return;}
   if(trackingInterval){toast('Tracking already chal rahi hai!','#f59e0b');return;}
   locationCount=0;
+  localStorage.setItem('saaz_tracking','1');
+  _doStartTracking();
+  toast('Location tracking shuru ho gayi!');
+}
+
+function _doStartTracking(){
   var statusEl=document.getElementById('trackingStatus');
   var startBtn=document.getElementById('startTrackBtn');
-  statusEl.textContent='Starting...';
-  statusEl.style.color='#fbbf24';
-
-  // Send location immediately then every 30 seconds
+  if(statusEl){statusEl.textContent='Active - har 30 sec mein save ho raha hai';statusEl.style.color='#4ade80';}
+  if(startBtn){startBtn.textContent='✅ Tracking Active';startBtn.style.background='#334155';startBtn.onclick=null;}
   sendLocation('tracking start');
   trackingInterval=setInterval(function(){sendLocation('auto');},30*1000);
-
-  startBtn.textContent='✅ Tracking Active';
-  startBtn.style.background='#334155';
-  startBtn.onclick=null;
-  statusEl.textContent='Active - har 30 sec mein save ho raha hai';
-  statusEl.style.color='#4ade80';
-  toast('Location tracking shuru ho gayi!');
 }
 
 function stopTracking(){
   if(trackingInterval){clearInterval(trackingInterval);trackingInterval=null;}
+  localStorage.removeItem('saaz_tracking');
+}
+
+// Auto-resume tracking on page load/refresh
+function resumeTrackingIfActive(){
+  if(currentUser&&currentUser.role==='engineer'&&localStorage.getItem('saaz_tracking')==='1'){
+    if(!trackingInterval){
+      _doStartTracking();
+      toast('Tracking resume ho gayi!','#22c55e');
+    }
+  }
 }
 
 function sendLocation(activity){
