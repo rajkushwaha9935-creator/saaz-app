@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v4.1">
+<meta name="version" content="v4.3">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -225,12 +225,31 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
     <div id="customersList"></div>
   </div>
   <div class="page" id="page-location">
-    <div class="page-title">Location</div>
+    <div class="page-title">📍 Location</div>
     <div class="card">
-      <div style="font-weight:700;margin-bottom:10px">Apni location share karo</div>
-      <div id="locationStatus" class="text-muted" style="margin-bottom:12px;font-size:13px">--</div>
-      <button class="btn-primary" onclick="shareLocation()">Location Share Karo</button>
+      <div style="font-weight:700;margin-bottom:6px">Auto Tracking</div>
+      <div id="trackingStatus" style="font-size:12px;color:#94a3b8;margin-bottom:10px">Off</div>
+      <button class="btn-success" id="startTrackBtn" onclick="startTracking()" style="width:100%">▶ Tracking Start Karo</button>
     </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:6px">Manual Location Share</div>
+      <div id="locationStatus" class="text-muted" style="margin-bottom:10px;font-size:13px">--</div>
+      <button class="btn-outline" onclick="shareLocationOnce()">📍 Abhi Share Karo</button>
+    </div>
+    <div class="card" id="todaySummaryCard" style="display:none">
+      <div style="font-weight:700;margin-bottom:8px;color:#4ade80">Aaj Ka Summary</div>
+      <div id="todaySummaryContent"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-map">
+    <div class="flex-between" style="margin-bottom:14px">
+      <div class="page-title" style="margin:0">🗺️ Engineers Map</div>
+      <button class="btn-outline btn-sm" onclick="loadMap()">↻ Refresh</button>
+    </div>
+    <div id="engineerMapStatus" class="text-muted" style="margin-bottom:8px;font-size:12px"></div>
+    <div id="map" style="height:400px;border-radius:12px;overflow:hidden;background:#1e293b"></div>
+    <div id="engineersList" style="margin-top:14px"></div>
   </div>
 </div>
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -320,7 +339,7 @@ function buildNav(){
   var role=currentUser.role;
   var tabs=role==='engineer'
     ?[{id:'attendance',label:'Attendance'},{id:'complaints',label:'Complaints'},{id:'location',label:'Location'}]
-    :[{id:'dashboard',label:'Home'},{id:'complaints',label:'Complaints'},{id:'payments',label:'Payments'},{id:'machines',label:'Machines'},{id:'customers',label:'Customers'},{id:'employees',label:'Team'}];
+    :[{id:'dashboard',label:'Home'},{id:'complaints',label:'Complaints'},{id:'payments',label:'Payments'},{id:'machines',label:'Machines'},{id:'customers',label:'Customers'},{id:'employees',label:'Team'},{id:'map',label:'🗺️ Map'}];
   document.getElementById('navBar').innerHTML=tabs.map(function(t){return '<button class="nav-btn" id="nav-'+t.id+'" onclick="showPage(\''+t.id+'\')">'+t.label+'</button>';}).join('');
 }
 
@@ -338,6 +357,7 @@ async function loadPage(id){
   else if(id==='machines')loadMachines();
   else if(id==='attendance')loadAttendance();
   else if(id==='employees')loadEmployees();
+  else if(id==='map')loadMap();
   else if(id==='customers'){
     var sinp=document.getElementById('customerSearchInp');
     if(sinp)sinp.value='';
@@ -710,7 +730,17 @@ async function loadAttendance(){
 }
 
 async function doCheckIn(){var res=await api({action:'checkIn',employeeId:currentUser.id,employeeName:currentUser.name});if(res.success){toast('Check-in ho gaya!');loadAttendance();}else toast(res.error||'Error','#ef4444');}
-async function doCheckOut(){var res=await api({action:'checkOut',employeeId:currentUser.id});if(res.success){var ot=parseFloat(res.otHours)>0?' OT: '+res.otHours+'h':'';toast('Check-out ho gaya!'+ot);loadAttendance();}else toast(res.error||'Error','#ef4444');}
+async function doCheckOut(){
+  var res=await api({action:'checkOut',employeeId:currentUser.id});
+  if(res.success){
+    var ot=parseFloat(res.otHours)>0?' OT: '+res.otHours+'h':'';
+    toast('Check-out ho gaya!'+ot);
+    // Stop tracking and save daily summary
+    if(trackingInterval)stopTracking();
+    await saveDailySummary();
+    loadAttendance();
+  }else toast(res.error||'Error','#ef4444');
+}
 
 async function loadEmployees(force){
   if(!force&&cacheTime.employees&&(Date.now()-cacheTime.employees)<CACHE_MS&&allEmployees.length){renderEmployees(allEmployees);return;}
@@ -859,14 +889,150 @@ function openAddPaymentForCustomer(cid,cname,phone,total,paid){
   },100);
 }
 
-async function shareLocation(){
+var trackingInterval=null;
+var locationCount=0;
+
+function startTracking(){
+  if(!navigator.geolocation){toast('GPS support nahi hai','#ef4444');return;}
+  if(trackingInterval){toast('Tracking already chal rahi hai!','#f59e0b');return;}
+  locationCount=0;
+  var statusEl=document.getElementById('trackingStatus');
+  var startBtn=document.getElementById('startTrackBtn');
+  statusEl.textContent='Starting...';
+  statusEl.style.color='#fbbf24';
+
+  // Send location immediately then every 30 seconds
+  sendLocation('tracking start');
+  trackingInterval=setInterval(function(){sendLocation('auto');},30*1000);
+
+  startBtn.textContent='✅ Tracking Active';
+  startBtn.style.background='#334155';
+  startBtn.onclick=null;
+  statusEl.textContent='Active - har 30 sec mein save ho raha hai';
+  statusEl.style.color='#4ade80';
+  toast('Location tracking shuru ho gayi!');
+}
+
+function stopTracking(){
+  if(trackingInterval){clearInterval(trackingInterval);trackingInterval=null;}
+}
+
+function sendLocation(activity){
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    locationCount++;
+    var res=await api({action:'saveLocation',employeeId:currentUser.id,employeeName:currentUser.name,
+      lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy,activity:activity});
+    var statusEl=document.getElementById('trackingStatus');
+    if(statusEl&&trackingInterval){
+      statusEl.textContent='Active - '+locationCount+' locations saved today';
+      statusEl.style.color='#4ade80';
+    }
+    var locEl=document.getElementById('locationStatus');
+    if(locEl)locEl.textContent='Last: '+new Date().toLocaleTimeString('en-IN')+'  ('+pos.coords.latitude.toFixed(4)+', '+pos.coords.longitude.toFixed(4)+')';
+  },function(err){console.log('GPS error:',err);},{enableHighAccuracy:true,timeout:10000});
+}
+
+async function shareLocationOnce(){
   var statusEl=document.getElementById('locationStatus');
   if(!navigator.geolocation){toast('GPS support nahi hai','#ef4444');return;}
   statusEl.textContent='Location le raha hoon...';
   navigator.geolocation.getCurrentPosition(async function(pos){
-    var res=await api({action:'logLocation',employeeId:currentUser.id,employeeName:currentUser.name,lat:pos.coords.latitude,lng:pos.coords.longitude,activity:'manual update'});
-    if(res.success){statusEl.textContent='Location save ho gayi! ('+pos.coords.latitude.toFixed(4)+', '+pos.coords.longitude.toFixed(4)+')';statusEl.className='text-success';toast('Location save ho gayi!');}
-  },function(){statusEl.textContent='Permission do';statusEl.className='text-danger';});
+    var res=await api({action:'saveLocation',employeeId:currentUser.id,employeeName:currentUser.name,
+      lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy,activity:'manual'});
+    if(res.success){
+      statusEl.textContent='Saved! '+new Date().toLocaleTimeString('en-IN');
+      statusEl.className='text-success';
+      toast('Location save ho gayi!');
+    }
+  },function(){statusEl.textContent='GPS permission do';statusEl.className='text-danger';});
+}
+
+// Called when engineer checks out - save daily summary
+async function saveDailySummary(){
+  var res=await api({action:'saveDailySummary',employeeId:currentUser.id,employeeName:currentUser.name});
+  if(res.success){
+    var card=document.getElementById('todaySummaryCard');
+    var cont=document.getElementById('todaySummaryContent');
+    if(card)card.style.display='block';
+    if(cont)cont.innerHTML=
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">'+
+      '<div><div style="font-size:10px;color:#94a3b8">Distance</div><div style="font-weight:800;font-size:18px;color:#60a5fa">'+res.distanceKm+'<span style="font-size:11px">km</span></div></div>'+
+      '<div><div style="font-size:10px;color:#94a3b8">Locations</div><div style="font-weight:800;font-size:18px;color:#fbbf24">'+res.locCount+'</div></div>'+
+      '<div><div style="font-size:10px;color:#94a3b8">Complaints</div><div style="font-weight:800;font-size:18px;color:#4ade80">'+res.complaintsHandled+'</div></div>'+
+      '</div>';
+    toast('Aaj ka summary save ho gaya!');
+  }
+}
+
+// Map functions - Admin/Manager only
+var mapInitialized=false;var leafletMap=null;var engineerMarkers={};
+
+async function loadMap(){
+  var statusEl=document.getElementById('engineerMapStatus');
+  if(statusEl)statusEl.textContent='Loading...';
+
+  // Load Leaflet if not loaded
+  if(!mapInitialized){
+    await loadLeaflet();
+    mapInitialized=true;
+  }
+
+  // Get engineer locations
+  var res=await api({action:'getEngineerLocations'});
+  var locations=res.success?res.data:[];
+
+  if(statusEl)statusEl.textContent=locations.length+' engineers active aaj | Last updated: '+new Date().toLocaleTimeString('en-IN');
+
+  // Initialize map centered on Varanasi
+  if(!leafletMap){
+    leafletMap=L.map('map').setView([25.3176, 82.9739], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'OpenStreetMap',maxZoom:19
+    }).addTo(leafletMap);
+  }
+
+  // Clear old markers
+  Object.values(engineerMarkers).forEach(function(m){leafletMap.removeLayer(m);});
+  engineerMarkers={};
+
+  // Add engineer markers
+  locations.forEach(function(eng){
+    if(!eng.lat||!eng.lng)return;
+    var marker=L.circleMarker([eng.lat,eng.lng],{
+      radius:10,fillColor:'#22c55e',color:'#fff',weight:2,fillOpacity:0.9
+    }).addTo(leafletMap);
+    marker.bindPopup('<b>'+eng.employeeName+'</b><br>Last: '+eng.time+'<br>'+eng.activity);
+    engineerMarkers[eng.employeeId]=marker;
+  });
+
+  // Engineer list
+  var listEl=document.getElementById('engineersList');
+  if(listEl){
+    listEl.innerHTML=locations.length===0
+      ?'<div class="empty">Aaj koi engineer active nahi</div>'
+      :locations.map(function(e){
+          return '<div class="card" style="margin-bottom:8px">'+
+            '<div style="display:flex;justify-content:space-between;align-items:center">'+
+            '<div><div style="font-weight:700">'+e.employeeName+'</div>'+
+            '<div style="font-size:11px;color:#94a3b8">Last: '+e.time+' | '+e.activity+'</div></div>'+
+            '<span style="width:10px;height:10px;background:#22c55e;border-radius:50%;display:inline-block"></span>'+
+            '</div></div>';
+        }).join('');
+  }
+}
+
+function loadLeaflet(){
+  return new Promise(function(resolve){
+    if(window.L){resolve();return;}
+    var link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+    var script=document.createElement('script');
+    script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload=resolve;
+    document.head.appendChild(script);
+  });
 }
 
 function custSuggest(val,prefix,suggId,onSelect){
