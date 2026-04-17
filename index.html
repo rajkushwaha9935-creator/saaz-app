@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v4.6">
+<meta name="version" content="v4.7">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -730,9 +730,25 @@ async function loadAttendance(){
   var res=await api({action:'getAttendance',employeeId:currentUser.id});var records=res.success?res.data:[];
   var todayStr=new Date().toDateString();var todayRec=records.find(function(r){return new Date(r.date).toDateString()===todayStr;});
   var btnIn=document.getElementById('btnCheckIn');var btnOut=document.getElementById('btnCheckOut');var statusEl=document.getElementById('attStatus');
-  if(!todayRec){statusEl.textContent='Aaj check-in nahi hua';statusEl.className='text-danger';btnIn.style.display='block';btnOut.style.display='none';}
-  else if(!todayRec.checkOut){statusEl.textContent='Check-in: '+new Date(todayRec.checkIn).toLocaleTimeString('en-IN');statusEl.className='text-success';btnIn.style.display='none';btnOut.style.display='block';}
-  else{var ot=parseFloat(todayRec.otHours)>0?' | OT: '+todayRec.otHours+'h':'';statusEl.innerHTML='In: '+new Date(todayRec.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' | Out: '+new Date(todayRec.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+ot;statusEl.className='text-success';btnIn.style.display='none';btnOut.style.display='none';}
+  if(!todayRec){
+    statusEl.textContent='Aaj check-in nahi hua';statusEl.className='text-danger';
+    btnIn.style.display='block';btnIn.textContent='Check In';
+    btnOut.style.display='none';
+  } else if(!todayRec.checkOut){
+    statusEl.textContent='Check-in: '+new Date(todayRec.checkIn).toLocaleTimeString('en-IN');
+    statusEl.className='text-success';
+    btnIn.style.display='none';btnOut.style.display='block';
+  } else {
+    var ot=parseFloat(todayRec.otHours)>0?' | OT: '+todayRec.otHours+'h':'';
+    statusEl.innerHTML='In: '+new Date(todayRec.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+
+      ' | Out: '+new Date(todayRec.checkOut).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+ot;
+    statusEl.className='text-success';
+    // Show re-checkin button in case of accidental checkout
+    btnIn.style.display='block';
+    btnIn.textContent='Dobara Check In';
+    btnIn.style.background='#d97706';
+    btnOut.style.display='none';
+  }
   document.getElementById('attHistory').innerHTML=records.slice(0,10).map(function(r){
     var d=new Date(r.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
     var inT=r.checkIn?new Date(r.checkIn).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'--';
@@ -745,7 +761,8 @@ async function loadAttendance(){
 async function doCheckIn(){
   var res=await api({action:'checkIn',employeeId:currentUser.id,employeeName:currentUser.name});
   if(res.success){
-    toast('Check-in ho gaya!');
+    if(res.reCheckin) toast('Dobara check-in ho gaya!','#22c55e');
+    else toast('Check-in ho gaya!');
     // Auto start location tracking
     if(navigator.geolocation&&!trackingInterval){
       localStorage.setItem('saaz_tracking','1');
