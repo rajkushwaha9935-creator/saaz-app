@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SAAZ Management">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>SAAZ Management</title>
-<meta name="version" content="v4.4">
+<meta name="version" content="v4.6">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-width:480px;margin:0 auto;min-height:100vh}
@@ -228,8 +228,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;max-widt
     <div class="page-title">📍 Location</div>
     <div class="card">
       <div style="font-weight:700;margin-bottom:6px">Auto Tracking</div>
-      <div id="trackingStatus" style="font-size:12px;color:#94a3b8;margin-bottom:10px">Off</div>
-      <button class="btn-success" id="startTrackBtn" onclick="startTracking()" style="width:100%">▶ Tracking Start Karo</button>
+      <div id="trackingStatus" style="font-size:12px;color:#94a3b8">Off</div>
     </div>
     <div class="card">
       <div style="font-weight:700;margin-bottom:6px">Manual Location Share</div>
@@ -340,7 +339,7 @@ function startApp(){
 function buildNav(){
   var role=currentUser.role;
   var tabs=role==='engineer'
-    ?[{id:'attendance',label:'Attendance'},{id:'complaints',label:'Complaints'},{id:'location',label:'Location'}]
+    ?[{id:'attendance',label:'Attendance'},{id:'complaints',label:'Complaints'}]
     :[{id:'dashboard',label:'Home'},{id:'complaints',label:'Complaints'},{id:'payments',label:'Payments'},{id:'machines',label:'Machines'},{id:'customers',label:'Customers'},{id:'employees',label:'Team'},{id:'map',label:'🗺️ Map'}];
   document.getElementById('navBar').innerHTML=tabs.map(function(t){return '<button class="nav-btn" id="nav-'+t.id+'" onclick="showPage(\''+t.id+'\')">'+t.label+'</button>';}).join('');
 }
@@ -361,15 +360,15 @@ async function loadPage(id){
   else if(id==='employees')loadEmployees();
   else if(id==='map')loadMap();
   else if(id==='location'){
-    // Update UI to reflect current tracking state
-    var startBtn=document.getElementById('startTrackBtn');
     var statusEl=document.getElementById('trackingStatus');
-    if(trackingInterval){
-      if(startBtn){startBtn.textContent='✅ Tracking Active';startBtn.style.background='#334155';startBtn.onclick=null;}
-      if(statusEl){statusEl.textContent='Active - har 30 sec mein save ho raha hai';statusEl.style.color='#4ade80';}
-    } else {
-      if(startBtn){startBtn.textContent='▶ Tracking Start Karo';startBtn.style.background='';startBtn.onclick=startTracking;}
-      if(statusEl){statusEl.textContent='Off';statusEl.style.color='#94a3b8';}
+    if(statusEl){
+      if(trackingInterval){
+        statusEl.textContent='✅ Active - har 30 sec mein save ho raha hai';
+        statusEl.style.color='#4ade80';
+      } else {
+        statusEl.textContent='⏸ Off — Check-in karo to auto start hoga';
+        statusEl.style.color='#94a3b8';
+      }
     }
   }
   else if(id==='customers'){
@@ -743,14 +742,26 @@ async function loadAttendance(){
   }).join('')||'<div class="empty">Koi record nahi</div>';
 }
 
-async function doCheckIn(){var res=await api({action:'checkIn',employeeId:currentUser.id,employeeName:currentUser.name});if(res.success){toast('Check-in ho gaya!');loadAttendance();}else toast(res.error||'Error','#ef4444');}
+async function doCheckIn(){
+  var res=await api({action:'checkIn',employeeId:currentUser.id,employeeName:currentUser.name});
+  if(res.success){
+    toast('Check-in ho gaya!');
+    // Auto start location tracking
+    if(navigator.geolocation&&!trackingInterval){
+      localStorage.setItem('saaz_tracking','1');
+      _doStartTracking();
+    }
+    loadAttendance();
+  }else toast(res.error||'Error','#ef4444');
+}
 async function doCheckOut(){
   var res=await api({action:'checkOut',employeeId:currentUser.id});
   if(res.success){
     var ot=parseFloat(res.otHours)>0?' OT: '+res.otHours+'h':'';
     toast('Check-out ho gaya!'+ot);
-    // Stop tracking and save daily summary
-    if(trackingInterval)stopTracking();
+    // Auto stop tracking
+    stopTracking();
+    localStorage.removeItem('saaz_tracking');
     await saveDailySummary();
     loadAttendance();
   }else toast(res.error||'Error','#ef4444');
@@ -917,9 +928,7 @@ function startTracking(){
 
 function _doStartTracking(){
   var statusEl=document.getElementById('trackingStatus');
-  var startBtn=document.getElementById('startTrackBtn');
-  if(statusEl){statusEl.textContent='Active - har 30 sec mein save ho raha hai';statusEl.style.color='#4ade80';}
-  if(startBtn){startBtn.textContent='✅ Tracking Active';startBtn.style.background='#334155';startBtn.onclick=null;}
+  if(statusEl){statusEl.textContent='✅ Active - har 30 sec mein save ho raha hai';statusEl.style.color='#4ade80';}
   sendLocation('tracking start');
   trackingInterval=setInterval(function(){sendLocation('auto');},30*1000);
 }
@@ -934,7 +943,6 @@ function resumeTrackingIfActive(){
   if(currentUser&&currentUser.role==='engineer'&&localStorage.getItem('saaz_tracking')==='1'){
     if(!trackingInterval){
       _doStartTracking();
-      toast('Tracking resume ho gayi!','#22c55e');
     }
   }
 }
